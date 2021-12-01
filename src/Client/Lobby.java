@@ -42,9 +42,7 @@ public class Lobby extends JPanel {
 	/*
 	 * 
 	 * === CLIENT NODE ===
-	 * 
-	 * CREATE SYSTEM TO PROVIDE LOGGED IN USERS A UNIQUE PORT
-	 *
+	 * 	 *
 	 * LOOK FOR PLACE TO PUT USERS REGISTRATION TO connectedClients_new IN SERVER
 	 *
 	 * REQUEST TO SERVER FROM ANOTHER PART OF THE CODE connectedClients_new

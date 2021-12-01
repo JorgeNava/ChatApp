@@ -7,20 +7,31 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
+
+import Client.Message;
+import Client.User;
 
 public class ServerThread implements Runnable {
-	final int supportedClients = 10;
+	final int supportedClients = 100;
 	final int messageBytesLength = 256;
-	private int serverPort;
-	private int clientIndex;
+	Server serverInterfase;
+	int serverPort;
+	int registeredClientsIndex;
+	int privateChatsIndex;
+	int groupChatsIndex;
+
+	ArrayList<User> registeredClients = new ArrayList<User>();
+	
 	private int[] clientsPorts;
 	private InetAddress[] clientsIPs;
-	private Server serverInterfase;
 	
 	public ServerThread (int serverPort, Server serverInterfase) {
 		this.serverPort = serverPort;
 		this.serverInterfase = serverInterfase;
-		this.clientIndex = 0;
+		this.registeredClientsIndex = 0;
+		this.privateChatsIndex = 0;
+		this.groupChatsIndex = 0;
 		this.clientsPorts = new int [supportedClients];
 		this.clientsIPs = new InetAddress[supportedClients];
 	}
@@ -29,64 +40,68 @@ public class ServerThread implements Runnable {
 		try {
 			int clientPort;
 			byte[] messageBytes;
-			String compMessage;
-			String recievedMessage;
+			String recievedString;
 			DatagramSocket socket = new DatagramSocket(serverPort);
 			DatagramPacket recievedPackage;
 			InetAddress clientAddress;			
 			
-			serverInterfase.successLabel.setVisible(true);
-			
+
 			do {
-				compMessage = "";
 				messageBytes = new byte[messageBytesLength];
-				recievedMessage = new String(messageBytes);
+				recievedString = new String(messageBytes);
 				recievedPackage = new DatagramPacket(messageBytes, messageBytesLength);
 				socket.receive(recievedPackage);
 				
-				recievedMessage = new String(messageBytes).trim();
-				serverInterfase.messageField.setText(recievedMessage);
+				recievedString = new String(messageBytes).trim();
 				
-				clientPort = recievedPackage.getPort();
-				clientAddress = recievedPackage.getAddress();
+				Message recievedMessage = new Message(recievedString);
+				recievedMessage.printMessageData();
 				
-				if(recievedMessage.startsWith("&/")) {
-					registerClient(clientPort, clientAddress);
-					compMessage = "You were registered succesfully.";
-				} else {
-					compMessage = recievedMessage;
-					sendPackage(compMessage);
-				}				
+				serverInterfase.updateConsole("Recieved message: "+ recievedMessage.message);
+				
+				proccessFlags(recievedMessage);			
 			}while(true);
-			
 		}catch(Exception e) {
 			System.err.println(e.getMessage());
 			System.exit(1);	
 		}	
 	}
 	
-	void registerClient(int clientPort, InetAddress clientAddress) {
-		clientsPorts[clientIndex] = clientPort;
-		clientsIPs[clientIndex] = clientAddress;
-		serverInterfase.messageField.setText("Client was registerd succesfuly!");
-		clientIndex++;
+	void proccessFlags(Message message) {
+		String responseMessage = "";
+
+		if(message.flag.equals("RegisterUser")) {
+			registerClient(message.originUser);		
+			responseMessage = "You were registered succesfully.";
+		}else{ // Messages for other clients/users/nodes
+			responseMessage = message.message;
+		}
+		
+		sendResponse(responseMessage);
 	}
 	
-	void sendPackage(String compMessage) {
+	void registerClient(User newUser) {
+		this.registeredClients.add(newUser);
+		this.serverInterfase.updateConsole("Client "+ newUser.alias +" was registerd succesfuly!");
+	}
+	
+	void sendResponse(String responseMessage) {
 		byte[] senderMessageBytes = new byte[messageBytesLength];
 		DatagramPacket senderPackage;
 		DatagramSocket socket;
 		
-		for(int i = 0; i < clientIndex; i++) {
-			try {
-				socket = new DatagramSocket(serverPort + 1);
-				senderMessageBytes = compMessage.getBytes();
-				senderPackage = new DatagramPacket(senderMessageBytes, compMessage.length(), clientsIPs[i], clientsPorts[i]);
-				socket.send(senderPackage);
-				socket.close();
-			} catch(IOException e) {
-				e.printStackTrace();
-			}
+		// ! IDENTIFY IF MESSAGE IS FOR CLIENT APP, PRIVATE CHAT OR GROUP CHAT
+		
+		//for(int i = 0; i < clientIndex; i++) {
+		try {
+			socket = new DatagramSocket(serverPort + 1);
+			senderMessageBytes = responseMessage.getBytes();
+			senderPackage = new DatagramPacket(senderMessageBytes, responseMessage.length(), clientsIPs[i], clientsPorts[i]);
+			socket.send(senderPackage);
+			socket.close();
+		} catch(IOException e) {
+			e.printStackTrace();
 		}
+		//}
 	}	
 }

@@ -12,12 +12,14 @@ import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.Arrays;
 
 import javax.swing.JPanel;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JButton;
 import javax.swing.JTextField;
+
 import javax.swing.JLabel;
 import java.awt.Dimension;
 import javax.swing.JTextArea;
@@ -41,11 +43,19 @@ public class Login extends JPanel {
 		aliasLabel = new JLabel("ALIAS");
 		aliasLabel.setBounds(73, 46, 56, 16);
 		add(aliasLabel);
+	}
+	
+	public void startLogin(DatagramSocket socket) throws IOException {		
+		this.clientUser = new User(aliasField.getText(), socket.getLocalPort());
+		int serverPort = 8101;
+		String message = "";
+		String flag = "RegisterUser";
 		
+		Message loginMessage = new Message(this.clientUser, serverPort, message, flag, socket);
+		loginMessage.sendMessage();
 	}
 	
 	public User getClientUser() {
-		this.clientUser = new User( aliasField.getText(), 8001);
 		return this.clientUser;
 	}
 }

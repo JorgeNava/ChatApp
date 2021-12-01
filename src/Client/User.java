@@ -1,11 +1,17 @@
 package Client;
 
 public class User {
-	String alias;
-	int port;
+	public String alias;
+	public int port;
 	
 	public User(String alias, int port) {
 		this.alias = alias;
 		this.port = port;
 	}
+	
+	public User(String alias) {
+		this.alias = alias;
+		this.port = -1;
+	}
+
 }

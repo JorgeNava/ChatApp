@@ -3,6 +3,9 @@ import java.awt.CardLayout;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Toolkit;
+import java.io.IOException;
+import java.net.DatagramSocket;
+import java.net.SocketException;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -15,13 +18,16 @@ public class Chat extends JFrame{
 	static final String PRIVATE_CHAT_VIEW_ID = "PRIVATE CHAT";
 	static final String GROUP_CHAT_VIEW_ID = "GROUP CHAT";
 	static final int BOUNDS_X = 660, BOUNDS_Y = 389, BOUNDS_W = 130, BOUNDS_H = 28;
+	DatagramSocket socket;
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws SocketException {
 		new Chat();
 	}
 	
-	Chat(){
+	Chat() throws SocketException{
 		super(HEADER);
+		this.socket = new DatagramSocket();
+		
 	    CardLayout viewsCardLayout = new CardLayout(5, 5);
 	    JPanel viewsContainer = new JPanel(viewsCardLayout);
 	    Login loginView = new Login();
@@ -48,8 +54,13 @@ public class Chat extends JFrame{
         viewsContainer.add(groupChatView, GROUP_CHAT_VIEW_ID);
 
         loginView_Btn.addActionListener(e -> {
-        	lobbyView.setClientUser(loginView.getClientUser());
-        	viewsCardLayout.show(viewsContainer, LOBBY_VIEW_ID); // LOGIN - LOBBY
+        	try {
+				loginView.startLogin(this.socket);
+				lobbyView.setClientUser(loginView.getClientUser());
+				viewsCardLayout.show(viewsContainer, LOBBY_VIEW_ID); // LOGIN - LOBBY
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
         });
         lobbyView_Btn.addActionListener(e -> {
         	if(lobbyView.startPrivateChat() && !lobbyView.selectedChatIsGroupFlag) {
@@ -81,5 +92,4 @@ public class Chat extends JFrame{
                                       middle.y - (this.getHeight() / 2));
         this.setLocation(newLocation);
 	}
-	
 }
