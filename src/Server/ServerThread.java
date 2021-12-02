@@ -21,7 +21,13 @@ public class ServerThread implements Runnable {
 	int privateChatsIndex;
 	int groupChatsIndex;
 
+	
 	ArrayList<User> registeredClients = new ArrayList<User>();
+	DatagramSocket serverSenderSocket;
+	private final String fieldSeparator = "¶";
+	private final String attributeSeparator = "§";
+	private final String registeredClientsSeparator = "¾";
+
 	
 	private int[] clientsPorts;
 	private InetAddress[] clientsIPs;
@@ -59,7 +65,7 @@ public class ServerThread implements Runnable {
 				
 				serverInterfase.updateConsole("Recieved message: "+ recievedMessage.message);
 				
-				proccessFlags(recievedMessage);			
+				proccessMessage(recievedMessage);			
 			}while(true);
 		}catch(Exception e) {
 			System.err.println(e.getMessage());
@@ -67,41 +73,67 @@ public class ServerThread implements Runnable {
 		}	
 	}
 	
-	void proccessFlags(Message message) {
+	// Run server services based in recievedMessage flag
+	void proccessMessage(Message recievedMessage) throws IOException {
+		String recievedFlag = recievedMessage.flag;
+		String messageWasFor = "";
 		String responseMessage = "";
-
-		if(message.flag.equals("RegisterUser")) {
-			registerClient(message.originUser);		
-			responseMessage = "You were registered succesfully.";
-		}else{ // Messages for other clients/users/nodes
-			responseMessage = message.message;
+		String responseFlag = "";
+		
+		if(recievedFlag.equals("RegisterUser")) {
+			registerClient(recievedMessage.originUser);
+			messageWasFor = "Server";
+			responseMessage = getRegisteredClientsString();
+			responseFlag = "RegistrationCompleted";
+		}else if(recievedFlag.equals("UpdateRegisteredClientList")) {	// ! STILL MISSING TO IMPLEMENT THIS IN CLIENT SIDE
+			messageWasFor = "Server";
+			responseMessage = getRegisteredClientsString();
+			responseFlag = "UpdateRegisteredClientListCompleted";
+		}else{ // ! STILL MISSING TO IMPLEMENT THIS IN CLIENT SIDE 
+			// Messages destined for Private/Group Chats
+			// Recieved messages for this chats must have PrivateChat or GroupChat flags
+			messageWasFor = recievedFlag;
+			responseMessage = recievedMessage.message;
+			responseFlag = recievedFlag;
 		}
 		
-		sendResponse(responseMessage);
+		sendResponse(recievedMessage, messageWasFor, responseMessage, responseFlag);
+	}
+		
+	void sendResponse(Message recievedMessage, String messageWasFor, String responseMessage, String responseFlag) throws IOException {
+		Message serverMessage = new Message();
+		User originUser = new User();
+		int destinationPort;
+		
+		if(messageWasFor.equals("Server")) {	// Send response message to origin client since it was for a service
+			originUser = new User("Server", this.serverSenderSocket.getLocalPort());
+			destinationPort = recievedMessage.originUser.port;
+			
+			serverMessage = new Message(originUser, destinationPort, responseMessage, responseFlag, this.serverSenderSocket);
+			serverMessage.sendMessage();
+		}else if(messageWasFor.equals("PrivateChat")) {
+			// ! STILL MISSING TO IMPLEMENT REDIRECTION OF PRIVATE CHATS MESSAGES
+		}else if(messageWasFor.equals("GroupChat")) {
+			// ! STILL MISSING TO IMPLEMENT MULTI-REDIRECTION OF GROUP CHATS MESSAGES
+		}else {
+			
+		}
+		
+	}
+	
+	String getRegisteredClientsString() {
+		String registeredClientsString = "";
+		for (int i = 0; i < this.registeredClients.size(); i++) {
+			User client = this.registeredClients.get(i);
+			
+			registeredClientsString += client.alias + attributeSeparator;
+			registeredClientsString += client.port + registeredClientsSeparator;
+		}
+		return registeredClientsString;
 	}
 	
 	void registerClient(User newUser) {
 		this.registeredClients.add(newUser);
 		this.serverInterfase.updateConsole("Client "+ newUser.alias +" was registerd succesfuly!");
 	}
-	
-	void sendResponse(String responseMessage) {
-		byte[] senderMessageBytes = new byte[messageBytesLength];
-		DatagramPacket senderPackage;
-		DatagramSocket socket;
-		
-		// ! IDENTIFY IF MESSAGE IS FOR CLIENT APP, PRIVATE CHAT OR GROUP CHAT
-		
-		//for(int i = 0; i < clientIndex; i++) {
-		try {
-			socket = new DatagramSocket(serverPort + 1);
-			senderMessageBytes = responseMessage.getBytes();
-			senderPackage = new DatagramPacket(senderMessageBytes, responseMessage.length(), clientsIPs[i], clientsPorts[i]);
-			socket.send(senderPackage);
-			socket.close();
-		} catch(IOException e) {
-			e.printStackTrace();
-		}
-		//}
-	}	
 }

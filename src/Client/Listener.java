@@ -9,39 +9,27 @@ import javax.swing.JTextArea;
 public class Listener implements Runnable{
 	JTextArea chatTextArea;
 	final int messageBytesLength = 256;
+	Message recievedMessagePlaceholder;
 	
-	public Listener(JTextArea chatTextArea) {
-		this.chatTextArea = chatTextArea;
+	public Listener(Message recievedMessagePlaceholder) {
+		this.recievedMessagePlaceholder = recievedMessagePlaceholder;
 	}	
 		
 	public void run() {
-		InetAddress address;
-		DatagramSocket socket;
-		String message = "";
-		String recievedMessage = "";
-		DatagramPacket datagramPackage;
-		DatagramPacket recievedPackage;
-		byte[] collector = new byte[messageBytesLength];
-		byte[] messageBytes = new byte[messageBytesLength];
-		
-		messageBytes = message.getBytes();
 		try {
-			socket = new DatagramSocket();			 
-			address = InetAddress.getByName("localhost");
-			 
-			message = "&/";
-			messageBytes = message.getBytes();
-			datagramPackage = new DatagramPacket(messageBytes, message.length(), address, 11001);
-			socket.send(datagramPackage);
-			 
+			byte[] collector = new byte[messageBytesLength];
+			DatagramSocket socket = new DatagramSocket();
+			DatagramPacket recievedPackage;
+			String recievedMessage = "";
+		
 			do {
 				collector = new byte[messageBytesLength];
 				recievedPackage = new DatagramPacket(collector, messageBytesLength);
 				socket.receive(recievedPackage);
-				recievedMessage = new String(collector).trim(); 
-				chatTextArea.append("Message recieved: " +recievedMessage + "\n");
-				System.out.println(recievedMessage);
-			} while (!recievedMessage.startsWith("/&"));
+				recievedMessage = new String(collector).trim();
+				recievedMessagePlaceholder = new Message(recievedMessage);
+				recievedMessagePlaceholder.printMessageData();
+			} while (! recievedMessagePlaceholder.flag.equals("EndClient"));
 		}catch (Exception e) {
 			System.err.println(e.getMessage());
 			System.exit(1);

@@ -8,11 +8,13 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 
 public class Message {
 	private final String messageFormatOrder[] = {"Origin User","Destination Port", "Message", "Flag"};
 	private final String fieldSeparator = "¶";
 	private final String attributeSeparator = "§";
+	private final String registeredClientsSeparator = "¾";
 	private final String serverIp = "localhost";
 	private final int serverPort = 8101;
 	private final int messageBytesLength = 256;
@@ -38,7 +40,26 @@ public class Message {
 		this.createMessageFromFormattedMessage(formattedMessage);
 	}
 	
-	void sendMessage() throws IOException {
+	public Message() {}
+	
+	ArrayList<User> getRegisteredClientsFromMessage() {
+		ArrayList<User> registeredClients =  new ArrayList<User>();
+		String registeredClientsString = this.message;
+		
+		String usersStrings[] = registeredClientsString.split(registeredClientsSeparator);
+		
+		for (int i = 0; i < usersStrings.length; i++) {
+			String userAttributes[] = usersStrings[i].split(attributeSeparator);
+			String userAlias = userAttributes[0];
+			int userPort = Integer.parseInt(userAttributes[1]);
+			
+			registeredClients.add(new User(userAlias, userPort));
+		}
+		
+		return registeredClients;
+	}
+	
+	public void sendMessage() throws IOException {
 		InetAddress address = InetAddress.getByName(serverIp);
 		byte[] messageBytes = new byte[messageBytesLength];
 		

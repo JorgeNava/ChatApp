@@ -13,5 +13,9 @@ public class User {
 		this.alias = alias;
 		this.port = -1;
 	}
-
+	
+	public User() {
+		this.alias = "";
+		this.port = -1;
+	}
 }

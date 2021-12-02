@@ -19,6 +19,8 @@ public class Chat extends JFrame{
 	static final String GROUP_CHAT_VIEW_ID = "GROUP CHAT";
 	static final int BOUNDS_X = 660, BOUNDS_Y = 389, BOUNDS_W = 130, BOUNDS_H = 28;
 	DatagramSocket socket;
+	Thread listener;
+	Message recievedMessage = new Message();
 
 	public static void main(String[] args) throws SocketException {
 		new Chat();
@@ -27,6 +29,17 @@ public class Chat extends JFrame{
 	Chat() throws SocketException{
 		super(HEADER);
 		this.socket = new DatagramSocket();
+		/* 
+		 * ! MISSING TO SEND this.recievedMessage TO ALL COMPONENTS AND ANALYZE HOW
+		 * ! TO IDENTIFY IN WHICH CHAT SHOULD BE PRINTED
+		 * 
+		 * ! CONSIDER CREATING A LISTENER THREAD FOR EVERY OPENED CHAT AND AN EXTRA
+		 * ! ONE TO ALWAYS BE GETTING UPDATED registeredClients LIST
+		 * 
+		 * ! ADD FUNCTIONALITY TO SEND MESSAGES WHEN PRIVATE/GROUP CHATS BUTTONS IS PRESSED
+		 */
+		this.listener = new Thread(new Listener(this.recievedMessage));
+		this.listener.start();
 		
 	    CardLayout viewsCardLayout = new CardLayout(5, 5);
 	    JPanel viewsContainer = new JPanel(viewsCardLayout);
