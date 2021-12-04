@@ -66,25 +66,19 @@ public class PrivateChat extends JPanel {
 				String messageContent = messageField.getText();
 				String flag = "PrivateChat";
 			
-				updateChat(chatConfig.originClient, messageContent);
 				Message message = new Message(originUser, recieverUser.port, messageContent, "PrivateChat");
+				updateChat(message);
 				message.sendMessage();
 				messageField.setText("");
 			} catch (IOException e1) {
 				e1.printStackTrace();
 			}
         });
-		
-		// TRY TO UPDATE CHAT WITH LAST RECIEVED MESSAGE
-		if(! this.lastStoredConversation.equals(this.chatConfig.storedConversation)) {
-			updateChat(this.chatConfig.getLastRecievedMessage().originUser, this.chatConfig.getLastRecievedMessage().message);
-		}
 	}
 	
-	void updateChat(User user, String message) {
-		this.display.append(user.alias + ": " + message + "\n");
+	void updateChat(Message message) {
+		this.display.append(message.originUser.alias + ": " + message.message + "\n");
 		this.display.update(this.display.getGraphics());
-		this.chatConfig.updateStoredConversation(user.alias + ": " + message + "\n");
 	}
 	
 	void setConfig(PrivateChatConfig config) {

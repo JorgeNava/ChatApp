@@ -12,6 +12,7 @@ import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 
 import javax.swing.JPanel;
 import javax.swing.JScrollBar;
@@ -34,6 +35,7 @@ public class GroupChat extends JPanel {
 	JScrollPane scroll;
 	JTextField messageField;
 	JButton sendBtn;
+	String lastStoredConversation;
 	
 	public GroupChat() {
 		setLayout(null);
@@ -58,22 +60,33 @@ public class GroupChat extends JPanel {
 		add(sendBtn);
 		
 		sendBtn.addActionListener(e -> {
-			updateChat(chatConfig.originClient, messageField.getText());
+			// ! UPDATE MESSAGE CLASS TO ENABLE recieverUser AS A USER CLASS ATTRIBUTE 
+			// ! AND ALSO A recieversUsers ARRAYLIST OF USERS FOR GROUP CHAT MESSAGE
+			/*
+			User originUser = this.chatConfig.originClient;
+			ArrayList<User> recieversUsers = this.chatConfig.recievers;
+			String messageContent = messageField.getText();
+			String flag = "GroupChat";
+		
+			Message message = new Message(originUser, recieversUsers, messageContent, "PrivateChat");
+			updateChat(message);
+			message.sendMessage();
 			messageField.setText("");
+			*/
         });
 	}
 	
-	void updateChat(User user, String message) {
-		this.display.append(user.alias + ": " + message + "\n");
+	
+	void updateChat(Message message) {
+		this.display.append(message.originUser.alias + ": " + message.message + "\n");
 		this.display.update(this.display.getGraphics());
-		this.chatConfig.updateStoredConversation(user.alias + ": " + message + "\n");
 	}
 	
 	void setConfig(GroupChatConfig config) {
 		this.chatConfig = config;
-		this.display.setText("");
 		this.display.setText(this.chatConfig.storedConversation);
 		this.display.update(this.display.getGraphics());
+		this.lastStoredConversation = this.chatConfig.storedConversation;
 	}
 }
 

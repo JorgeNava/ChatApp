@@ -12,8 +12,11 @@ public class Listener implements Runnable{
 	AppConfiguration appConfig = AppConfiguration.getInstance();
 	JTextArea chatTextArea;
 	final int messageBytesLength = 256;
+	Chat chat;
 	
-	public Listener(Chat chat) {}	
+	public Listener(Chat chat) {
+		this.chat = chat;
+	}	
 		
 	public void run() {
 		try {
@@ -49,9 +52,21 @@ public class Listener implements Runnable{
 			setRegisteredClients(message);
 		}else if(recievedFlag.equals("UpdateRegisteredClientListCompleted")) {
 			setRegisteredClients(message);
-		}else{
+		}else if(recievedFlag.equals("PrivateChat")){
+		 	this.chat.lobbyView.updatePrivateChatConfigByUser(message, this.chat.privateChatView);
 			
-		}		
+			if(this.appConfig.getActualView().equals(this.chat.PRIVATE_CHAT_VIEW_ID)) {
+				this.chat.privateChatView.updateChat(message);
+			}
+		}else if(recievedFlag.equals("GroupChat")){
+		 	this.chat.lobbyView.updateGroupChatConfigByUser(message, this.chat.groupChatView);
+			
+			if(this.appConfig.getActualView().equals(this.chat.GROUP_CHAT_VIEW_ID)) {
+				this.chat.groupChatView.updateChat(message);
+			}
+		}else {
+			
+		}
 	}
 	
 	void setRegisteredClients(Message message) {
