@@ -6,6 +6,7 @@ import java.awt.Toolkit;
 import java.io.IOException;
 import java.net.DatagramSocket;
 import java.net.SocketException;
+import java.util.ArrayList;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -18,17 +19,17 @@ public class Chat extends JFrame{
 	static final String PRIVATE_CHAT_VIEW_ID = "PRIVATE CHAT";
 	static final String GROUP_CHAT_VIEW_ID = "GROUP CHAT";
 	static final int BOUNDS_X = 660, BOUNDS_Y = 389, BOUNDS_W = 130, BOUNDS_H = 28;
-	DatagramSocket socket;
+	
+	AppConfiguration appConfig = AppConfiguration.getInstance();
 	Thread listener;
-	Message recievedMessage = new Message();
-
+	
 	public static void main(String[] args) throws SocketException {
 		new Chat();
 	}
 	
 	Chat() throws SocketException{
 		super(HEADER);
-		this.socket = new DatagramSocket();
+		this.appConfig.setSocket(new DatagramSocket());
 		/* 
 		 * ! MISSING TO SEND this.recievedMessage TO ALL COMPONENTS AND ANALYZE HOW
 		 * ! TO IDENTIFY IN WHICH CHAT SHOULD BE PRINTED
@@ -38,7 +39,7 @@ public class Chat extends JFrame{
 		 * 
 		 * ! ADD FUNCTIONALITY TO SEND MESSAGES WHEN PRIVATE/GROUP CHATS BUTTONS IS PRESSED
 		 */
-		this.listener = new Thread(new Listener(this.recievedMessage));
+		this.listener = new Thread(new Listener(this));
 		this.listener.start();
 		
 	    CardLayout viewsCardLayout = new CardLayout(5, 5);
@@ -68,8 +69,8 @@ public class Chat extends JFrame{
 
         loginView_Btn.addActionListener(e -> {
         	try {
-				loginView.startLogin(this.socket);
-				lobbyView.setClientUser(loginView.getClientUser());
+				loginView.startLogin();
+				lobbyView.setClientUser();
 				viewsCardLayout.show(viewsContainer, LOBBY_VIEW_ID); // LOGIN - LOBBY
 			} catch (IOException e1) {
 				e1.printStackTrace();
@@ -85,9 +86,11 @@ public class Chat extends JFrame{
         	}
         });
         privateChatView_Btn.addActionListener(e -> {
+        	// loginView.setRegisteredClientsList(this.recievedMessage, this.registeredClients);
         	viewsCardLayout.show(viewsContainer, LOBBY_VIEW_ID); // PRIVATE CHAT - LOBBY
         });
         groupChatView_Btn.addActionListener(e -> {
+        	// loginView.setRegisteredClientsList(this.recievedMessage, this.registeredClients);
         	viewsCardLayout.show(viewsContainer, LOGIN_VIEW_ID);
         });
 

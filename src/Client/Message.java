@@ -11,6 +11,7 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 
 public class Message {
+	AppConfiguration appConfig = AppConfiguration.getInstance();
 	private final String messageFormatOrder[] = {"Origin User","Destination Port", "Message", "Flag"};
 	private final String fieldSeparator = "¶";
 	private final String attributeSeparator = "§";
@@ -18,21 +19,31 @@ public class Message {
 	private final String serverIp = "localhost";
 	private final int serverPort = 8101;
 	private final int messageBytesLength = 256;
-
-	public DatagramSocket socket;
+	private ArrayList<User> registeredClients = new ArrayList<User>();
+	
 	public User originUser;
 	public int destinationPort; 
 	public String message;
 	public String formattedMessage;
 	public String flag;
 	
+	public DatagramSocket serverSenderSocket;
 	
-	public Message(User originUser, int destinationPort, String message, String flag, DatagramSocket senderSocket) {
+	
+	public Message(User originUser, int destinationPort, String message, String flag) {
 		this.originUser = originUser;
 		this.destinationPort = destinationPort;
 		this.message = message;
 		this.flag = flag;
-		this.socket = senderSocket;
+		this.createFormattedMessage();
+	}
+	
+	public Message(User originUser, int destinationPort, String message, String flag, DatagramSocket serverSenderSocket) {
+		this.originUser = originUser;
+		this.destinationPort = destinationPort;
+		this.message = message;
+		this.flag = flag;
+		this.serverSenderSocket = serverSenderSocket;
 		this.createFormattedMessage();
 	}
 	
@@ -65,7 +76,11 @@ public class Message {
 		
 		messageBytes = this.formattedMessage.getBytes();
 		DatagramPacket senderPackage = new DatagramPacket(messageBytes, this.formattedMessage.length(), address, this.destinationPort);
-		this.socket.send(senderPackage);
+		if(! this.originUser.alias.equals("Server")) {
+			this.appConfig.getSocket().send(senderPackage);			
+		}else {
+			this.serverSenderSocket.send(senderPackage);
+		}
 	}
 	
 	void createFormattedMessage() {

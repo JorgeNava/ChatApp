@@ -34,6 +34,8 @@ public class PrivateChat extends JPanel {
 	JScrollPane scroll;
 	JTextField messageField;
 	JButton sendBtn;
+	String lastStoredConversation;
+	
 	
 	public PrivateChat() {
 		setLayout(null);
@@ -58,9 +60,25 @@ public class PrivateChat extends JPanel {
 		add(sendBtn);
 		
 		sendBtn.addActionListener(e -> {
-			updateChat(chatConfig.originClient, messageField.getText());
-			messageField.setText("");
+			try {
+				User originUser = this.chatConfig.originClient;
+				User recieverUser = this.chatConfig.recieverClient;
+				String messageContent = messageField.getText();
+				String flag = "PrivateChat";
+			
+				updateChat(chatConfig.originClient, messageContent);
+				Message message = new Message(originUser, recieverUser.port, messageContent, "PrivateChat");
+				message.sendMessage();
+				messageField.setText("");
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
         });
+		
+		// TRY TO UPDATE CHAT WITH LAST RECIEVED MESSAGE
+		if(! this.lastStoredConversation.equals(this.chatConfig.storedConversation)) {
+			updateChat(this.chatConfig.getLastRecievedMessage().originUser, this.chatConfig.getLastRecievedMessage().message);
+		}
 	}
 	
 	void updateChat(User user, String message) {
@@ -73,6 +91,7 @@ public class PrivateChat extends JPanel {
 		this.chatConfig = config;
 		this.display.setText(this.chatConfig.storedConversation);
 		this.display.update(this.display.getGraphics());
+		this.lastStoredConversation = this.chatConfig.storedConversation;
 	}
 }
 

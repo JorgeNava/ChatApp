@@ -1,10 +1,13 @@
 package Client;
 
+import java.net.DatagramSocket;
+
 public class PrivateChatConfig {
+	AppConfiguration appConfig = AppConfiguration.getInstance();
 	User originClient, recieverClient;
 	String storedConversation;
-	int originPort, recieverPort;
-	
+	Message lastRecievedMessage;
+
 	public PrivateChatConfig(User originClient, User recieverClient) {
 		this.originClient = originClient;
 		this.recieverClient = recieverClient;
@@ -13,5 +16,13 @@ public class PrivateChatConfig {
 	
 	void updateStoredConversation(String message) {
 		this.storedConversation += message;
+	}
+	
+	public Message getLastRecievedMessage() {
+		return lastRecievedMessage;
+	}
+
+	public void setLastRecievedMessage(Message lastRecievedMessage) {
+		this.lastRecievedMessage = lastRecievedMessage;
 	}
 }

@@ -9,6 +9,7 @@ import java.net.Socket;
 
 import javax.swing.*;
 
+import Client.Message;
 import Client.User;
 
 public class Server extends JFrame {

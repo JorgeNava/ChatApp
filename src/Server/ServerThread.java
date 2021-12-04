@@ -63,9 +63,9 @@ public class ServerThread implements Runnable {
 				Message recievedMessage = new Message(recievedString);
 				recievedMessage.printMessageData();
 				
-				serverInterfase.updateConsole("Recieved message: "+ recievedMessage.message);
+				serverInterfase.updateConsole(recievedMessage.originUser + " > Send: " + recievedMessage.message);
 				
-				proccessMessage(recievedMessage);			
+				processMessage(recievedMessage);			
 			}while(true);
 		}catch(Exception e) {
 			System.err.println(e.getMessage());
@@ -74,7 +74,7 @@ public class ServerThread implements Runnable {
 	}
 	
 	// Run server services based in recievedMessage flag
-	void proccessMessage(Message recievedMessage) throws IOException {
+	void processMessage(Message recievedMessage) throws IOException {
 		String recievedFlag = recievedMessage.flag;
 		String messageWasFor = "";
 		String responseMessage = "";
@@ -134,6 +134,6 @@ public class ServerThread implements Runnable {
 	
 	void registerClient(User newUser) {
 		this.registeredClients.add(newUser);
-		this.serverInterfase.updateConsole("Client "+ newUser.alias +" was registerd succesfuly!");
+		this.serverInterfase.updateConsole("Server > Client "+ newUser.alias +" was registerd succesfuly!");
 	}
 }

@@ -25,6 +25,7 @@ import java.awt.Dimension;
 import javax.swing.JTextArea;
 
 public class Login extends JPanel {
+	AppConfiguration appConfig = AppConfiguration.getInstance();
 	JTextField aliasField;
 	JLabel aliasLabel;
 	String clientAlias;
@@ -45,13 +46,14 @@ public class Login extends JPanel {
 		add(aliasLabel);
 	}
 	
-	public void startLogin(DatagramSocket socket) throws IOException {		
-		this.clientUser = new User(aliasField.getText(), socket.getLocalPort());
+	public void startLogin() throws IOException {		
+		this.clientUser = new User(aliasField.getText(), this.appConfig.getSocket().getLocalPort());
+		this.appConfig.setClientUser(this.clientUser);
 		int serverPort = 8101;
 		String message = "";
 		String flag = "RegisterUser";
-		
-		Message loginMessage = new Message(this.clientUser, serverPort, message, flag, socket);
+
+		Message loginMessage = new Message(this.clientUser, serverPort, message, flag);
 		loginMessage.sendMessage();
 	}
 	
