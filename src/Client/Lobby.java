@@ -184,7 +184,7 @@ public class Lobby extends JPanel {
 		return privateChatConfigIndex;
 	}
 	
-	int getGroupChatConfigIndexByChatId(int chatId) {
+	int getGroupChatConfigIndexByUser(int chatId) {
 		int groupChatConfigIndex;
 		boolean configWasFound = false;
 		for (groupChatConfigIndex = 0; groupChatConfigIndex < this.connectedGroupChatConfigs.size(); groupChatConfigIndex++) {
@@ -230,29 +230,6 @@ public class Lobby extends JPanel {
 			selectedGroupChatConfig = this.connectedGroupChatConfigs.get(this.selectedGroupChatId);
 		}
 		return selectedGroupChatConfig;
-	}
-	
-	void updatePrivateChatConfigByUser(Message message, PrivateChat privateChatView) {
-		User senderUser = message.originUser;
-		int privateChatConfigIndex = getPrivateChatConfigIndexByUser(senderUser);
-		PrivateChatConfig userPrivateChatConfig = this.connectedPrivateChatConfigs.get(privateChatConfigIndex); 
-		
-		userPrivateChatConfig.lastRecievedMessage = message;
-		userPrivateChatConfig.updateStoredConversation(senderUser.alias + ": " + message.message + "\n");
-		this.connectedPrivateChatConfigs.set(privateChatConfigIndex, userPrivateChatConfig); 
-		privateChatView.setConfig(userPrivateChatConfig);	
-	}
-	
-	void updateGroupChatConfigByUser(Message message, GroupChat groupChatView) {
-		User senderGroup = message.originUser;
-		int senderChatId = Integer.parseInt(senderGroup.alias.split("-")[1]);
-		int groupChatConfigIndex = getGroupChatConfigIndexByChatId(senderChatId);
-		GroupChatConfig userGroupChatConfig = this.connectedGroupChatConfigs.get(groupChatConfigIndex); 
-		
-		userGroupChatConfig.lastRecievedMessage = message;
-		userGroupChatConfig.updateStoredConversation(senderGroup.alias + ": " + message.message + "\n");
-		this.connectedGroupChatConfigs.set(groupChatConfigIndex, userGroupChatConfig); 
-		groupChatView.setConfig(userGroupChatConfig);	
 	}
 	
 	boolean startPrivateChat() {

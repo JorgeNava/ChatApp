@@ -35,7 +35,6 @@ public class GroupChat extends JPanel {
 	JScrollPane scroll;
 	JTextField messageField;
 	JButton sendBtn;
-	String lastStoredConversation;
 	
 	public GroupChat() {
 		setLayout(null);
@@ -60,33 +59,32 @@ public class GroupChat extends JPanel {
 		add(sendBtn);
 		
 		sendBtn.addActionListener(e -> {
-			// ! UPDATE MESSAGE CLASS TO ENABLE recieverUser AS A USER CLASS ATTRIBUTE 
-			// ! AND ALSO A recieversUsers ARRAYLIST OF USERS FOR GROUP CHAT MESSAGE
-			/*
 			User originUser = this.chatConfig.originClient;
 			ArrayList<User> recieversUsers = this.chatConfig.recievers;
 			String messageContent = messageField.getText();
 			String flag = "GroupChat";
-		
 			Message message = new Message(originUser, recieversUsers, messageContent, "PrivateChat");
 			updateChat(message);
+			MessageSender msgSender = new MessageSender(message);
+			msgSender.sendMessage();
 			message.sendMessage();
 			messageField.setText("");
-			*/
+
+
         });
 	}
 	
-	
-	void updateChat(Message message) {
-		this.display.append(message.originUser.alias + ": " + message.message + "\n");
+	void updateChat(User user, String message) {
+		this.display.append(user.alias + ": " + message + "\n");
 		this.display.update(this.display.getGraphics());
+		this.chatConfig.updateStoredConversation(user.alias + ": " + message + "\n");
 	}
 	
 	void setConfig(GroupChatConfig config) {
 		this.chatConfig = config;
+		this.display.setText("");
 		this.display.setText(this.chatConfig.storedConversation);
 		this.display.update(this.display.getGraphics());
-		this.lastStoredConversation = this.chatConfig.storedConversation;
 	}
 }
 

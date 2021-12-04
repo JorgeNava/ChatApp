@@ -60,25 +60,28 @@ public class PrivateChat extends JPanel {
 		add(sendBtn);
 		
 		sendBtn.addActionListener(e -> {
-			try {
-				User originUser = this.chatConfig.originClient;
-				User recieverUser = this.chatConfig.recieverClient;
-				String messageContent = messageField.getText();
-				String flag = "PrivateChat";
-			
-				Message message = new Message(originUser, recieverUser.port, messageContent, "PrivateChat");
-				updateChat(message);
-				message.sendMessage();
-				messageField.setText("");
-			} catch (IOException e1) {
-				e1.printStackTrace();
-			}
+			User originUser = this.chatConfig.originClient;
+			User recieverUser = this.chatConfig.recieverClient;
+			String messageContent = messageField.getText();
+			String flag = "PrivateChat";
+
+			updateChat(chatConfig.originClient, messageContent);
+			Message message = new Message(originUser, recieverUser.port, messageContent, "PrivateChat");
+			MessageSender msgSender = new MessageSender(message);
+			msgSender.sendMessage();
+			messageField.setText("");
         });
+		
+		// TRY TO UPDATE CHAT WITH LAST RECIEVED MESSAGE
+		if(! this.lastStoredConversation.equals(this.chatConfig.storedConversation)) {
+			updateChat(this.chatConfig.getLastRecievedMessage().originUser, this.chatConfig.getLastRecievedMessage().message);
+		}
 	}
 	
-	void updateChat(Message message) {
-		this.display.append(message.originUser.alias + ": " + message.message + "\n");
+	void updateChat(User user, String message) {
+		this.display.append(user.alias + ": " + message + "\n");
 		this.display.update(this.display.getGraphics());
+		this.chatConfig.updateStoredConversation(user.alias + ": " + message + "\n");
 	}
 	
 	void setConfig(PrivateChatConfig config) {

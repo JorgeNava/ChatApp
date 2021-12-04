@@ -11,7 +11,6 @@ public class AppConfiguration {
 	private Message recievedMessage = new Message();
 	private User clientUser = new User();
 	private DatagramSocket socket;
-	private String actualView = "Login";
 	
 	private AppConfiguration() {
 	}
@@ -30,14 +29,6 @@ public class AppConfiguration {
 		 return instance;
 	 }
 	
-	 public String getActualView() {
-		 return actualView;
-	 }
-	
-	 public void setActualView(String actualView) {
-		 this.actualView = actualView;
-	 }
-
 	 public User getClientUser() {
 		 return clientUser;
 	 }
