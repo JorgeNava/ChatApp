@@ -70,7 +70,8 @@ public class GroupChat extends JPanel {
 		
 			Message message = new Message(originUser, recieversUsers, messageContent, "PrivateChat");
 			updateChat(message);
-			message.sendMessage();
+			MessageSender msgSender = new MessageSender(message);
+			msgSender.sendMessage();
 			messageField.setText("");
 			*/
         });
