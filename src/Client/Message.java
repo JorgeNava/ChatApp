@@ -20,6 +20,8 @@ public class Message {
 	private final int serverPort = 8101;
 	private final int messageBytesLength = 256;
 	private ArrayList<User> registeredClients = new ArrayList<User>();
+	// 	private ArrayList<User> groupChatRecievers = new ArrayList<User>();
+
 	
 	public User originUser;
 	public int destinationPort; 
