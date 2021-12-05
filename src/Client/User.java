@@ -9,11 +9,6 @@ public class User {
 		this.port = port;
 	}
 	
-	public User(String alias) {
-		this.alias = alias;
-		this.port = -1;
-	}
-	
 	public User() {
 		this.alias = "";
 		this.port = -1;

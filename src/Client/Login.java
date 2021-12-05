@@ -26,6 +26,8 @@ import javax.swing.JTextArea;
 
 public class Login extends JPanel {
 	AppConfiguration appConfig = AppConfiguration.getInstance();
+	final int SERVER_PORT = 8010;
+	
 	JTextField aliasField;
 	JLabel aliasLabel;
 	String clientAlias;
@@ -46,15 +48,16 @@ public class Login extends JPanel {
 		add(aliasLabel);
 	}
 	
-	public void startLogin() throws IOException {		
+	public void startLogin() {		
 		this.clientUser = new User(aliasField.getText(), this.appConfig.getSocket().getLocalPort());
 		this.appConfig.setClientUser(this.clientUser);
-		int serverPort = 8101;
+		User recieverClient = new User("Server", SERVER_PORT);
 		String message = "";
 		String flag = "RegisterUser";
 
-		Message loginMessage = new Message(this.clientUser, serverPort, message, flag);
-		loginMessage.sendMessage();
+		Message loginMessage = new Message(this.clientUser, recieverClient, message, flag);
+		MessageSender msgSender = new MessageSender(loginMessage);
+		msgSender.sendMessage();
 	}
 	
 	public User getClientUser() {
