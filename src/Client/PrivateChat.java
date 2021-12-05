@@ -67,8 +67,9 @@ public class PrivateChat extends JPanel {
 				String flag = "PrivateChat";
 			
 				Message message = new Message(originUser, recieverUser.port, messageContent, "PrivateChat");
+				MessageSender msgSender = new MessageSender(message);
 				updateChat(message);
-				message.sendMessage();
+				msgSender.sendMessage();
 				messageField.setText("");
 			} catch (IOException e1) {
 				e1.printStackTrace();

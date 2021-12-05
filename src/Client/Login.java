@@ -54,7 +54,8 @@ public class Login extends JPanel {
 		String flag = "RegisterUser";
 
 		Message loginMessage = new Message(this.clientUser, serverPort, message, flag);
-		loginMessage.sendMessage();
+		MessageSender msgSender = new MessageSender(loginMessage);
+		msgSender.sendMessage();
 	}
 	
 	public User getClientUser() {

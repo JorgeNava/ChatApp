@@ -20,24 +20,31 @@ public class Listener implements Runnable{
 		
 	public void run() {
 		try {
-			byte[] collector = new byte[messageBytesLength];
-			DatagramSocket socket = new DatagramSocket();
-			DatagramPacket recievedPackage;
-			String recievedMessage = "";
+			socket = new DatagramSocket(); //NECESITA UN PUERTO
+			byte[] incomingData = new byte[messageBytesLength];
+			//byte[] collector = new byte[messageBytesLength];
+			//DatagramPacket recievedPackage;
+			//String recievedMessage = "";
 		
 			do {
-				collector = new byte[messageBytesLength];
-				recievedPackage = new DatagramPacket(collector, messageBytesLength);
+				//collector = new byte[messageBytesLength];
+				DatagramPacket recievedPackage = new DatagramPacket(incomingData, incomingData.length);
 				socket.receive(recievedPackage);
-				recievedMessage = new String(collector).trim();
-				
-				this.appConfig.setRecievedMessage(new Message(recievedMessage));
-				Message message = this.appConfig.getRecievedMessage();
-				message.printMessageData();
-				
-				if(! message.flag.equals("EndClient")) {
-					processMessage(message);					
-				}else { break; }
+				byte[] data = recievedPackage.getData();
+				//recievedMessage = new String(collector).trim();
+				ByteArrayInputStream in = new ByteArrayInputStream(data);
+				ObjectInputStream is = new ObjectInputStream(in);
+				try {
+					Message message = (Message) is.readObject(); 
+//					this.appConfig.setRecievedMessage(new Message(recievedMessage));
+//					Message message = this.appConfig.getRecievedMessage();
+//					message.printMessageData();
+					if(! message.flag.equals("EndClient")) {
+						processMessage(message);					
+					}else { break; }
+				}catch (ClassNotFoundException e) {
+					e.printStackTrace();
+				}
 			} while (true);
 		}catch (Exception e) {
 			System.err.println(e.getMessage());

@@ -24,9 +24,9 @@ public class ServerThread implements Runnable {
 	
 	ArrayList<User> registeredClients = new ArrayList<User>();
 	DatagramSocket serverSenderSocket;
-	private final String fieldSeparator = "¶";
-	private final String attributeSeparator = "§";
-	private final String registeredClientsSeparator = "¾";
+	private final String fieldSeparator = "ï¿½";
+	private final String attributeSeparator = "ï¿½";
+	private final String registeredClientsSeparator = "ï¿½";
 
 	
 	private int[] clientsPorts;
@@ -45,27 +45,34 @@ public class ServerThread implements Runnable {
 	public void run() {
 		try {
 			int clientPort;
-			byte[] messageBytes;
-			String recievedString;
+			byte[] messageBytes = new byte[messageBytesLength];
+			// String recievedString;
 			DatagramSocket socket = new DatagramSocket(serverPort);
 			DatagramPacket recievedPackage;
 			InetAddress clientAddress;			
 			
 
 			do {
-				messageBytes = new byte[messageBytesLength];
-				recievedString = new String(messageBytes);
-				recievedPackage = new DatagramPacket(messageBytes, messageBytesLength);
+				// messageBytes = new byte[messageBytesLength];
+				// recievedString = new String(messageBytes);
+				recievedPackage = new DatagramPacket(messageBytes, messageBytes.length);
 				socket.receive(recievedPackage);
 				
-				recievedString = new String(messageBytes).trim();
+				// recievedString = new String(messageBytes).trim();
+				byte[] data = recievedPackage.getData();
+				ByteArrayInputStream in = new ByteArrayInputStream(data);
+				ObjectInputStream is = new ObjectInputStream(in);
 				
-				Message recievedMessage = new Message(recievedString);
-				recievedMessage.printMessageData();
-				
-				serverInterfase.updateConsole(recievedMessage.originUser + " > Send: " + recievedMessage.message);
-				
-				processMessage(recievedMessage);			
+
+				try {
+					Message recievedMessage = (Message) is.readObject();
+					// Message recievedMessage = new Message(recievedString);
+					recievedMessage.printMessageData();
+					serverInterfase.updateConsole(recievedMessage.originUser + " > Send: " + recievedMessage.message);
+					processMessage(recievedMessage);
+				} catch (ClassNotFoundException e) {
+					e.printStackTrace();
+				}			
 			}while(true);
 		}catch(Exception e) {
 			System.err.println(e.getMessage());
@@ -110,7 +117,9 @@ public class ServerThread implements Runnable {
 			destinationPort = recievedMessage.originUser.port;
 			
 			serverMessage = new Message(originUser, destinationPort, responseMessage, responseFlag, this.serverSenderSocket);
-			serverMessage.sendMessage();
+			MessageSender msgSender = new MessageSender(serverMessage);
+			msgSender.sendMessage();
+
 		}else if(messageWasFor.equals("PrivateChat")) {
 			// ! STILL MISSING TO IMPLEMENT REDIRECTION OF PRIVATE CHATS MESSAGES
 		}else if(messageWasFor.equals("GroupChat")) {
