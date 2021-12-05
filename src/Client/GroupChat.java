@@ -35,7 +35,6 @@ public class GroupChat extends JPanel {
 	JScrollPane scroll;
 	JTextField messageField;
 	JButton sendBtn;
-	String lastStoredConversation;
 	
 	public GroupChat() {
 		setLayout(null);
@@ -60,20 +59,16 @@ public class GroupChat extends JPanel {
 		add(sendBtn);
 		
 		sendBtn.addActionListener(e -> {
-			// ! UPDATE MESSAGE CLASS TO ENABLE recieverUser AS A USER CLASS ATTRIBUTE 
-			// ! AND ALSO A recieversUsers ARRAYLIST OF USERS FOR GROUP CHAT MESSAGE
-			/*
 			User originUser = this.chatConfig.originClient;
-			ArrayList<User> recieversUsers = this.chatConfig.recievers;
+			ArrayList<User> recieversUsers = this.chatConfig.destinyRecievers;
 			String messageContent = messageField.getText();
 			String flag = "GroupChat";
-		
-			Message message = new Message(originUser, recieversUsers, messageContent, "PrivateChat");
+			
+			Message message = new Message(originUser, recieversUsers, messageContent, flag);
 			updateChat(message);
 			MessageSender msgSender = new MessageSender(message);
 			msgSender.sendMessage();
 			messageField.setText("");
-			*/
         });
 	}
 	
@@ -87,7 +82,6 @@ public class GroupChat extends JPanel {
 		this.chatConfig = config;
 		this.display.setText(this.chatConfig.storedConversation);
 		this.display.update(this.display.getGraphics());
-		this.lastStoredConversation = this.chatConfig.storedConversation;
 	}
 }
 

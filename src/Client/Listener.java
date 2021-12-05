@@ -1,6 +1,8 @@
 package Client;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -20,25 +22,17 @@ public class Listener implements Runnable{
 		
 	public void run() {
 		try {
-			socket = new DatagramSocket(); //NECESITA UN PUERTO
 			byte[] incomingData = new byte[messageBytesLength];
-			//byte[] collector = new byte[messageBytesLength];
-			//DatagramPacket recievedPackage;
-			//String recievedMessage = "";
 		
 			do {
-				//collector = new byte[messageBytesLength];
 				DatagramPacket recievedPackage = new DatagramPacket(incomingData, incomingData.length);
-				socket.receive(recievedPackage);
 				byte[] data = recievedPackage.getData();
-				//recievedMessage = new String(collector).trim();
 				ByteArrayInputStream in = new ByteArrayInputStream(data);
 				ObjectInputStream is = new ObjectInputStream(in);
 				try {
 					Message message = (Message) is.readObject(); 
-//					this.appConfig.setRecievedMessage(new Message(recievedMessage));
-//					Message message = this.appConfig.getRecievedMessage();
-//					message.printMessageData();
+					this.appConfig.setRecievedMessage(message);
+					message.printMessageData();
 					if(! message.flag.equals("EndClient")) {
 						processMessage(message);					
 					}else { break; }
@@ -77,6 +71,6 @@ public class Listener implements Runnable{
 	}
 	
 	void setRegisteredClients(Message message) {
-		this.appConfig.setRegisteredClients(message.getRegisteredClientsFromMessage());
+		this.appConfig.setRegisteredClients(message.registeredClients);
 	}
 }

@@ -1,18 +1,18 @@
 package Client;
 
-import java.net.DatagramSocket;
 import java.util.ArrayList;
 
 public class GroupChatConfig {
-	User originClient;
-	String storedConversation;
-	ArrayList<User> recievers = new ArrayList<User>();
 	int chatId;
+	String storedConversation;
+	User originClient;
+	ArrayList<User> destinyRecievers = new ArrayList<User>();
 	Message lastRecievedMessage;
 
-	public GroupChatConfig(User originClient, ArrayList<User> recievers) {
+	public GroupChatConfig(int chatId, User originClient, ArrayList<User> destinyRecievers) {
+		this.chatId = chatId;
 		this.originClient = originClient;
-		this.recievers = recievers;
+		this.destinyRecievers = destinyRecievers;
 		this.storedConversation = "";
 	}
 	

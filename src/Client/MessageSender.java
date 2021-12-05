@@ -9,19 +9,19 @@ import java.net.InetAddress;
 import java.net.Socket;
 
 public class MessageSender {
-    Message msg;
+	final int SERVER_PORT = 8010;
     ByteArrayOutputStream baos;
     ObjectOutputStream oos;
     InetAddress IPAddress;
-    
+    Message msg;
+
     public MessageSender(Message msg) {
-		this.msg = msg;
-		this.baos = new ByteArrayOutputStream();
-         try {
+    	try {
+    		this.msg = msg;
+    		this.baos = new ByteArrayOutputStream();
 			this.oos = new ObjectOutputStream(this.baos);
 			this.IPAddress = InetAddress.getByName("localhost");
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -31,10 +31,15 @@ public class MessageSender {
 		DatagramSocket socket;
     	try {  	
         	socket = new DatagramSocket();
-            oos.writeObject(msg);
+            oos.writeObject(this.msg);
             byte[] buf = baos.toByteArray();
-            
-            DatagramPacket sendPacket = new DatagramPacket(buf, buf.length,IPAddress, msg.destinationPort);
+            DatagramPacket sendPacket;
+
+            if(this.msg.getIsMessageFromServer()) {	// FROM SERVER - CLIENT/S
+            	sendPacket = new DatagramPacket(buf, buf.length,IPAddress, msg.destinationUser.port);            	
+            }else {	// FROM CLIENT TO SERVER
+            	sendPacket = new DatagramPacket(buf, buf.length,IPAddress, SERVER_PORT);            	
+            }
             socket.send(sendPacket);
         }catch (Exception e) {
 			 System.err.println(e.getMessage());

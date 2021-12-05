@@ -130,7 +130,6 @@ public class Lobby extends JPanel {
 		return connectedClientsAlias;
 	}
 	
-	// KEEP AN EYE IN THIS PART !!!
 	void processRecievedMessage() {
 		if(this.appConfig.isNewMessageRecieved()) {
 			Message recievedMessage = this.appConfig.getRecievedMessage();
@@ -145,24 +144,20 @@ public class Lobby extends JPanel {
 	}
 	
 	void updatePrivateChatConfigWithNewMessage(Message recievedMessage) {		
-		// IDENTIFY DESTINY PRIVATE CHAT CONFIGURATION
 		int destinyPrivateChatConfigIndex = getPrivateChatConfigIndexByUser(recievedMessage.originUser);
 		if(destinyPrivateChatConfigIndex != -1) {
 			PrivateChatConfig destinyPrivateChatConfig = this.connectedPrivateChatConfigs.get(destinyPrivateChatConfigIndex); 
 			
-			// UPDATE storedConversation FROM CONFIGURATION WITH recievedMessage MESSAGE
 			destinyPrivateChatConfig.updateStoredConversation(recievedMessage.message);
 			destinyPrivateChatConfig.setLastRecievedMessage(recievedMessage);
 		}
 	}
 	
 	void updateGroupChatConfigWithNewMessage(Message recievedMessage) {		
-		// IDENTIFY DESTINY GROUP CHAT CONFIGURATION
 		int destinyGroupChatConfigIndex = getPrivateChatConfigIndexByUser(recievedMessage.originUser);
 		if(destinyGroupChatConfigIndex != -1) {
 			GroupChatConfig destinyGroupChatConfig = this.connectedGroupChatConfigs.get(destinyGroupChatConfigIndex); 
 			
-			// UPDATE storedConversation FROM CONFIGURATION WITH recievedMessage MESSAGE
 			destinyGroupChatConfig.updateStoredConversation(recievedMessage.message);
 			destinyGroupChatConfig.setLastRecievedMessage(recievedMessage);
 		}
@@ -224,7 +219,7 @@ public class Lobby extends JPanel {
 	GroupChatConfig getGroupChatConfig() {
 		GroupChatConfig selectedGroupChatConfig;
 		if(this.selectedGroupChatIsNewFlag) {
-			selectedGroupChatConfig = new GroupChatConfig(this.appConfig.getClientUser(), this.selectedClientsForGroupChat);
+			selectedGroupChatConfig = new GroupChatConfig(this.connectedGroupChatConfigs.size() + 1, this.appConfig.getClientUser(), this.selectedClientsForGroupChat);
 			this.connectedGroupChatConfigs.add(selectedGroupChatConfig);			
 		}else {
 			selectedGroupChatConfig = this.connectedGroupChatConfigs.get(this.selectedGroupChatId);

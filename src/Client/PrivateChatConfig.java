@@ -1,9 +1,6 @@
 package Client;
 
-import java.net.DatagramSocket;
-
 public class PrivateChatConfig {
-	AppConfiguration appConfig = AppConfiguration.getInstance();
 	User originClient, recieverClient;
 	String storedConversation;
 	Message lastRecievedMessage;
