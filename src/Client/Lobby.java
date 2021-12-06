@@ -45,17 +45,13 @@ public class Lobby extends JPanel {
 	/*
 	 * === CLIENT NODE ===
 	 *
-	 * REQUEST TO SERVER FROM ANOTHER PART OF THE CODE connectedClients
-	 * WATCH THAT REQUEST IS SENT CONSTANTLY (CONSIDER CREATING THIS IN A NEW THREAD)
-	 * SOME COMMENTS REGARDING THIS TOPIC HAVE BEEN ADDED TO Chat.java FILE
-	 *
+	 * 
 	 * ADD USER'S ALIASES AS TITLES TO PRIVATE CHATS
 	 *
 	 * ADD GROUP CHAT NAME AS TITLE TO GROUP CHAT AND ALSO TO GROUP CHAT CONFIGS
 	 *
 	 * ADD "ATTACH FILE" BUTTON AND FUNCTIONALITY TO PRIVATE AND GROUP CHAT INTERFACES
 	 *
-	 * ADD USER PHOTO TO USERS CLASS
 	 * 
 	 * */
 	
@@ -70,7 +66,6 @@ public class Lobby extends JPanel {
 		setLayout(null);
 		this.setPreferredSize(new Dimension(420, 177));
 		
-		// KEEP AN EYE ON THIS .toArray() SINCE IT CAN CAUSE UNWANTED WANRINGS/ERRORS
 		clientsList = new JList(getConnectedClientsAliasList(this.appConfig.getRegisteredClients())); 
 		clientsList.setVisibleRowCount(4);
 		clientsScrollPane = new JScrollPane(clientsList);
@@ -169,7 +164,6 @@ public class Lobby extends JPanel {
 	int getPrivateChatConfigIndexByUser(User reciever) {
 		int privateChatConfigIndex;
 		boolean configWasFound = false;
-		System.out.println("##### "+ this.connectedPrivateChatConfigs.size());
 		for (privateChatConfigIndex = 0; privateChatConfigIndex < this.connectedPrivateChatConfigs.size(); privateChatConfigIndex++) {
             if(this.connectedPrivateChatConfigs.get(privateChatConfigIndex).recieverClient.alias.equals(reciever.alias)) {
             	configWasFound = true;
@@ -208,10 +202,6 @@ public class Lobby extends JPanel {
             	break;
             }
          }
-		
-		System.out.println(userIndexInConnectedClientsList);
-		System.out.println("Size: " +this.connectedClients.size());
-		System.out.println("ResultIndex: " + resultIndex);
 		return this.connectedClients.get(userIndexInConnectedClientsList);
 	}
 	
@@ -223,13 +213,6 @@ public class Lobby extends JPanel {
 		}else {
 			selectedPrivateChatConfig = this.connectedPrivateChatConfigs.get(this.selectedPrivateChatId);
 		}
-		//this.selectedPrivateChatIsNewFlag = false;
-		System.out.println("getPrivateChatConfig");
-		System.out.println("selectedPrivateChatIsNewFlag: "+ this.selectedPrivateChatIsNewFlag);
-		System.out.println("selectedPrivateChatId: "+ this.selectedPrivateChatId);
-		System.out.println("Receiver client alias: "+ selectedPrivateChatConfig.recieverClient.alias);
-		System.out.println("OriginClient: "+ selectedPrivateChatConfig.originClient.alias);
-		System.out.println("storedConversation: "+ selectedPrivateChatConfig.storedConversation);
 		return selectedPrivateChatConfig;
 	}
 	

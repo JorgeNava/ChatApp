@@ -64,15 +64,9 @@ public class Listener implements Runnable {
 				this.chat.lobbyView.updateRegisteredClientsList(message.registeredClients);
 			}
 		} else if (recievedFlag.equals("PrivateChat")) {
-			System.out.println("Updating private chat config by Listener.java");
-			//CHECK
 			this.chat.privateChatView.chatConfig = this.chat.lobbyView.updatePrivateChatConfigByUser(message, this.chat.privateChatView);
-			System.out.println("Stored conversation:" + this.chat.privateChatView.chatConfig.storedConversation);
-			System.out.println("Actual view" + this.appConfig.getActualView());
-			System.out.println("If cond: "+ this.appConfig.getActualView().equals(this.chat.PRIVATE_CHAT_VIEW_ID));
 			if(message.originUser.alias.equals(this.chat.privateChatView.chatConfig.recieverClient.alias)) {
 				if (this.appConfig.getActualView().equals(this.chat.PRIVATE_CHAT_VIEW_ID)) {
-					System.out.println("Entered");
 					this.chat.privateChatView.updateChat(message);
 				}
 			}
