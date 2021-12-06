@@ -11,7 +11,6 @@ public class Message implements Serializable{
 	public User originUser;
 	public User destinationUser;
 	public String message;
-	public String formattedMessage;
 	public String flag;	
 	public int groupChatId;
 	
@@ -42,34 +41,33 @@ public class Message implements Serializable{
 	}
 	
 	public void printMessageData() {
-		System.out.println("Origin user alias: " + this.originUser.alias);
-		System.out.println("Origin user port: " + this.originUser.port);
+		System.out.println("> Origin user alias: " + this.originUser.alias);
+		System.out.println("> Origin user port: " + this.originUser.port);
 		if(this.destinationUser != null) {
-			System.out.println("Destination user alias: " + this.destinationUser.alias);
-			System.out.println("Destination user port: " + this.destinationUser.port);			
+			System.out.println("> Destination user alias: " + this.destinationUser.alias);
+			System.out.println("> Destination user port: " + this.destinationUser.port);			
 		}
-		System.out.println("Message: " + this.message);
-		System.out.println("Flag: " + this.flag);
-		System.out.println("Formatted message: " + this.formattedMessage);
-		
+		System.out.println("> Message: " + this.message);
+		System.out.println("> Flag: " + this.flag);
+		System.out.println("> Group chat id: " + this.groupChatId);
 		this.printConnectedClients();
 		this.printGroupChatMembers();
 	}
 	public void printConnectedClients() {
-		System.out.println("printConnectedClients");
+		System.out.println("> printConnectedClients");
 		if(this.registeredClients.size() > 0) {
 			for (User user : this.registeredClients) {
-				System.out.println("user alias: " + user.alias);
-				System.out.println("user port: " + user.port);
+				System.out.println("User alias: " + user.alias);
+				System.out.println("User port: " + user.port);
 			}			
 		}
 	}
 	public void printGroupChatMembers() {
-		System.out.println("printGroupChatMembers");
+		System.out.println("> printGroupChatMembers");
 		if(this.groupChatRecievers.size() > 0) {
 			for (User user : this.groupChatRecievers) {
-				System.out.println("user alias: " + user.alias);
-				System.out.println("user port: " + user.port);
+				System.out.println("User alias: " + user.alias);
+				System.out.println("User port: " + user.port);
 			}			
 		}
 	}

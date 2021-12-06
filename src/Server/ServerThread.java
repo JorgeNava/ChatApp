@@ -75,7 +75,7 @@ public class ServerThread implements Runnable {
 		}else if(recievedFlag.equals("RegisterGroup")) {
 			this.registerNewGroup = true;
 			for (User user : this.registeredClients) {
-				if(user.alias.equals("Group"+recievedMessage.groupChatId)) {
+				if(user.alias.equals("Group "+recievedMessage.groupChatId)) {
 					this.registerNewGroup = false;
 				}
 			}
@@ -139,7 +139,7 @@ public class ServerThread implements Runnable {
 	}
 	
 	void registerGroup(Message message) {
-		String groupName = "Group" + message.groupChatId;
+		String groupName = "Group " + message.groupChatId;
 		this.registeredClients.add(new User(groupName));
 		this.serverInterfase.updateConsole("Server > Group "+ message.groupChatId +" was registerd succesfuly!");
 	}

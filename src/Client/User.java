@@ -17,4 +17,9 @@ public class User implements Serializable{
 		this.alias = "";
 		this.port = -1;
 	}
+	
+	public void printUser() {
+		System.out.println("User alias: " + this.alias);
+		System.out.println("User port: " + this.port);
+	}
 }

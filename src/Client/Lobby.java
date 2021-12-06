@@ -82,40 +82,42 @@ public class Lobby extends JPanel {
 			@Override
 			public void valueChanged(ListSelectionEvent e) {
 				String recieverAlias = (String) clientsList.getSelectedValue();
-				System.out.println("recieverAlias String " +recieverAlias);
-				recieverUser = getUserFromConnectedClientsByUserAlias(recieverAlias);
-				
-				if(groupChatCheckBox.isSelected()) { // FOR NEW GROUP CHATS
-					System.out.println("ACTUAL SELECTED CLIENT: " +  recieverAlias);
-					System.out.println("ALL SELECTED CLIENTS: ");
-					for (int i = 0; i < selectedClientsForGroupChat.size(); i++) {
-					      System.out.println(selectedClientsForGroupChat.get(i));
-				    }
-					selectedGroupChatId = connectedGroupChatConfigs.size() + 1;
-					System.out.println("NEW GROUP CHAT ID: " + selectedGroupChatId);
+				System.out.println("* ACTUAL SELECTED CLIENT: " +  recieverAlias);
+				if(recieverAlias != null) {
+					recieverUser = getUserFromConnectedClientsByUserAlias(recieverAlias);
 					
-					ArrayList<String> aliases = new ArrayList<String>();
-					for (User user : selectedClientsForGroupChat) {
-						aliases.add(user.alias);
-					}
-					if(!aliases.contains(recieverUser.alias)) {
-						selectedClientsForGroupChat.add(recieverUser);
-						selectedGroupChatIsNewFlag = true;						
-					}
-				}else {
-					System.out.println("SINGLE SELECTED CLIENT: " + recieverAlias);
-					selectedChatIsGroupFlag = recieverAlias.startsWith("Group");
-					if(selectedChatIsGroupFlag) {	// FOR EXISTING GROUP CHATS
-						selectedGroupChatId = Integer.parseInt(recieverAlias.substring(recieverAlias.length() - 1));
-						selectedGroupChatIsNewFlag = false;
-					}else { // FOR PRIVATE CHATS
-						System.out.println("recieverUser# "+ recieverUser.alias);
-						selectedPrivateChatId = getPrivateChatConfigIndexByUser(recieverUser);
-						if(selectedPrivateChatId == -1) {
-							selectedPrivateChatId = connectedPrivateChatConfigs.size() + 1;
-							selectedPrivateChatIsNewFlag = true;
-						}else{
-							selectedPrivateChatIsNewFlag = false;
+					if(groupChatCheckBox.isSelected()) { // FOR NEW GROUP CHATS
+						System.out.println("* ALL SELECTED CLIENTS: ");
+						for (int i = 0; i < selectedClientsForGroupChat.size(); i++) {
+							selectedClientsForGroupChat.get(i).printUser();
+						}
+						selectedGroupChatId = connectedGroupChatConfigs.size() + 1;
+						System.out.println("* NEW GROUP CHAT ID: " + selectedGroupChatId);
+						
+						ArrayList<String> aliases = new ArrayList<String>();
+						for (User user : selectedClientsForGroupChat) {
+							aliases.add(user.alias);
+						}
+						if(!aliases.contains(recieverUser.alias)) {
+							selectedClientsForGroupChat.add(recieverUser);
+							selectedGroupChatIsNewFlag = true;						
+						}
+					}else {
+						selectedChatIsGroupFlag = recieverAlias.startsWith("Group");
+						System.out.println("* SELECTED IS A GROUP: " + selectedChatIsGroupFlag);
+						if(selectedChatIsGroupFlag) {	// FOR EXISTING GROUP CHATS
+							selectedGroupChatId = Integer.parseInt(recieverAlias.substring(recieverAlias.length() - 1));
+							selectedGroupChatIsNewFlag = false;
+							System.out.println("* SELECTED GROUP ID: " + selectedGroupChatId);
+						}else { // FOR PRIVATE CHATS
+							System.out.println("recieverUser# "+ recieverUser.alias);
+							selectedPrivateChatId = getPrivateChatConfigIndexByUser(recieverUser);
+							if(selectedPrivateChatId == -1) {
+								selectedPrivateChatId = connectedPrivateChatConfigs.size() + 1;
+								selectedPrivateChatIsNewFlag = true;
+							}else{
+								selectedPrivateChatIsNewFlag = false;
+							}
 						}
 					}
 				}
@@ -227,20 +229,31 @@ public class Lobby extends JPanel {
 	
 	GroupChatConfig getGroupChatConfig() {
 		GroupChatConfig selectedGroupChatConfig;
+		System.out.println("=== getGroupChatConfig ===");
 		if(this.selectedGroupChatIsNewFlag) {
 			selectedGroupChatConfig = new GroupChatConfig(this.selectedGroupChatId, this.appConfig.getClientUser(), this.selectedClientsForGroupChat);
+			System.out.println("* chatId: " + selectedGroupChatConfig.chatId);
+			System.out.println("* getDestinyReciversAliases: " + selectedGroupChatConfig.getDestinyReciversAliases());
 			this.connectedGroupChatConfigs.add(selectedGroupChatConfig);	
-    		// ! REGISTER NEW GROUP CHATS IN SERVER AND UPDATE OTHER CLIENTS CONNECTED CLIENTS LISTS
+
 			User recieverClient = new User("Server", this.appConfig.getServerPort());
 			String message = "";
 			String flag = "RegisterGroup";
 
 			Message groupRegistrationMessage = new Message(this.appConfig.getClientUser(), recieverClient, message, flag);
 			groupRegistrationMessage.groupChatRecievers = this.selectedClientsForGroupChat;
+			groupRegistrationMessage.groupChatId = selectedGroupChatConfig.chatId;
 			MessageSender msgSender = new MessageSender(groupRegistrationMessage);
 			msgSender.sendMessage();
 		}else {
-			selectedGroupChatConfig = this.connectedGroupChatConfigs.get(this.selectedGroupChatId);
+			System.out.println("* this.selectedGroupChatId: " + this.selectedGroupChatId);
+			System.out.println("* connectedGroupChatConfigs size: " +  this.connectedGroupChatConfigs.size());
+			System.out.println("* connectedGroupChatConfigs IDs:");
+			for (GroupChatConfig config : connectedGroupChatConfigs) {
+				System.out.println("** "+config.chatId);
+			}
+			System.out.println("* selectedGroupChatConfig: " + this.connectedGroupChatConfigs.get(this.selectedGroupChatId - 1).chatId);
+			selectedGroupChatConfig = this.connectedGroupChatConfigs.get(this.selectedGroupChatId - 1);
 		}
 		return selectedGroupChatConfig;
 	}

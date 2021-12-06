@@ -60,6 +60,8 @@ public class Listener implements Runnable {
 			}
 		}else if (recievedFlag.equals("GroupRegistrationCompleted")) {
 			setRegisteredClients(message);
+			System.out.println("=== GroupRegistrationCompleted (LISTENER) ===");
+			message.printMessageData();
 			if (this.appConfig.getActualView().equals(this.chat.LOBBY_VIEW_ID)) {
 				this.chat.lobbyView.updateRegisteredClientsList(message.registeredClients);
 			}
