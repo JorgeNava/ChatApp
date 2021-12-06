@@ -53,7 +53,7 @@ public class Chat extends JFrame{
 		this.loginView_Btn = new JButton("LOGIN"); 
 		this.lobbyView_Btn = new JButton("START");	
 		this.privateChatView_Btn = new JButton("BACK");
-		this.groupChatView_Btn = new JButton("RETURN TO LOBBY");
+		this.groupChatView_Btn = new JButton("BACK");
 		
         
 		this.loginView_Btn.setBounds(224, 73, 97, 25);
@@ -63,7 +63,7 @@ public class Chat extends JFrame{
 		this.loginView.add(loginView_Btn);
 		this.lobbyView.add(lobbyView_Btn);
 		this.privateChatView.add(privateChatView_Btn);
-		this.privateChatView.add(groupChatView_Btn);
+		this.groupChatView.add(groupChatView_Btn);
 		this.viewsContainer.add(loginView, LOGIN_VIEW_ID);       
 		this.viewsContainer.add(lobbyView, LOBBY_VIEW_ID);
 		this.viewsContainer.add(privateChatView, PRIVATE_CHAT_VIEW_ID);
@@ -78,13 +78,13 @@ public class Chat extends JFrame{
 		this.lobbyView_Btn.addActionListener(e -> {
         	if(lobbyView.startPrivateChat() && !lobbyView.selectedChatIsGroupFlag) {
         		this.appConfig.setActualView(PRIVATE_CHAT_VIEW_ID);
-        		System.out.println("Updating private chat config by chat.java");        		
         		privateChatView.setConfig(lobbyView.getPrivateChatConfig());
-        		System.out.println(privateChatView.chatConfig.storedConversation);
         		viewsCardLayout.show(viewsContainer, PRIVATE_CHAT_VIEW_ID); // LOBBY - PRIVATE CHAT        		
         	}else {
         		this.appConfig.setActualView(GROUP_CHAT_VIEW_ID);
+        		System.out.println("Updating group chat config by chat.java");        		
          		groupChatView.setConfig(lobbyView.getGroupChatConfig());
+        		System.out.println("GROUP CHAT STORED CONV (CHAT.java): "+groupChatView.chatConfig.storedConversation);
         		viewsCardLayout.show(viewsContainer, GROUP_CHAT_VIEW_ID); // LOBBY - GROUP CHAT    
         	}
         });
@@ -93,7 +93,6 @@ public class Chat extends JFrame{
         	viewsCardLayout.show(viewsContainer, LOBBY_VIEW_ID); // PRIVATE CHAT - LOBBY
         });
 		this.groupChatView_Btn.addActionListener(e -> {
-			this.lobbyView.clientsList.clearSelection();
 			this.appConfig.setActualView(LOBBY_VIEW_ID); 
         	viewsCardLayout.show(viewsContainer, LOBBY_VIEW_ID); // GROUP CHAT - LOBBY
         });

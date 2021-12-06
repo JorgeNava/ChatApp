@@ -58,14 +58,17 @@ public class Listener implements Runnable {
 			if (this.appConfig.getActualView().equals(this.chat.LOBBY_VIEW_ID)) {
 				this.chat.lobbyView.updateRegisteredClientsList(message.registeredClients);
 			}
+		}else if (recievedFlag.equals("GroupRegistrationCompleted")) {
+			setRegisteredClients(message);
+			if (this.appConfig.getActualView().equals(this.chat.LOBBY_VIEW_ID)) {
+				this.chat.lobbyView.updateRegisteredClientsList(message.registeredClients);
+			}
 		} else if (recievedFlag.equals("UpdateRegisteredClientListCompleted")) {
 			setRegisteredClients(message);
 			if (this.appConfig.getActualView().equals(this.chat.LOBBY_VIEW_ID)) {
 				this.chat.lobbyView.updateRegisteredClientsList(message.registeredClients);
 			}
 		} else if (recievedFlag.equals("PrivateChat")) {
-			System.out.println("Updating private chat config by Listener.java");
-			//CHECK
 			this.chat.privateChatView.chatConfig = this.chat.lobbyView.updatePrivateChatConfigByUser(message, this.chat.privateChatView);
 			System.out.println("Stored conversation:" + this.chat.privateChatView.chatConfig.storedConversation);
 			System.out.println("Actual view" + this.appConfig.getActualView());
@@ -77,10 +80,20 @@ public class Listener implements Runnable {
 				}
 			}
 		} else if (recievedFlag.equals("GroupChat")) {
-			this.chat.lobbyView.updateGroupChatConfigByUser(message, this.chat.groupChatView);
-
-			if (this.appConfig.getActualView().equals(this.chat.GROUP_CHAT_VIEW_ID)) {
-				this.chat.groupChatView.updateChat(message);
+			System.out.println("Updating GROUP chat config by Listener.java");
+			this.chat.groupChatView.chatConfig = this.chat.lobbyView.updateGroupChatConfigByUser(message, this.chat.groupChatView);
+			
+			System.out.println("Stored conversation:" + this.chat.groupChatView.chatConfig.storedConversation);
+			System.out.println("Actual view" + this.appConfig.getActualView());
+			System.out.println("If cond: "+ this.appConfig.getActualView().equals(this.chat.GROUP_CHAT_VIEW_ID));
+			
+			
+			
+			if(this.chat.groupChatView.chatConfig.getDestinyReciversAliases().contains(message.originUser.alias)) {
+				if (this.appConfig.getActualView().equals(this.chat.GROUP_CHAT_VIEW_ID)) {
+					System.out.println("Entered to GROUP CHAT");
+					this.chat.groupChatView.updateChat(message);
+				}
 			}
 		} else {
 
@@ -89,6 +102,5 @@ public class Listener implements Runnable {
 
 	void setRegisteredClients(Message message) {
 		this.appConfig.setRegisteredClients(message.registeredClients);
-		System.out.println(this.appConfig.getRegisteredClients());
 	}
 }

@@ -65,7 +65,9 @@ public class GroupChat extends JPanel {
 			String flag = "GroupChat";
 			
 			Message message = new Message(originUser, recieversUsers, messageContent, flag);
+			message.groupChatId = this.chatConfig.chatId;
 			updateChat(message);
+			this.chatConfig.updateStoredConversation(message.originUser.alias + ": " + message.message + "\n");
 			MessageSender msgSender = new MessageSender(message);
 			msgSender.sendMessage();
 			messageField.setText("");

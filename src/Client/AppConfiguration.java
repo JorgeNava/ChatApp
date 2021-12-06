@@ -5,7 +5,8 @@ import java.util.ArrayList;
 
 public class AppConfiguration {
     private static AppConfiguration instance = null;
-	
+	private final int SERVER_PORT = 8010;
+
 	private ArrayList<User> registeredClients = new ArrayList<User>();
 	private Message latestRecievedMessage =  new Message();
 	private Message recievedMessage = new Message();
@@ -30,6 +31,10 @@ public class AppConfiguration {
 		 return instance;
 	 }
 	
+	 public int getServerPort() {
+		 return SERVER_PORT;
+	 }
+
 	 public String getActualView() {
 		 return actualView;
 	 }

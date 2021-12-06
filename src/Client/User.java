@@ -10,7 +10,9 @@ public class User implements Serializable{
 		this.alias = alias;
 		this.port = port;
 	}
-	
+	public User(String alias) {
+		this.alias = alias;
+	}
 	public User() {
 		this.alias = "";
 		this.port = -1;
