@@ -17,7 +17,6 @@ import Client.User;
 
 public class ServerThread implements Runnable {
 	final int MESSAGES_BYTES_LENGTH = 1024;
-	DatagramSocket socket;
 	Server serverInterfase;
 	int serverPort;
 	
@@ -32,31 +31,28 @@ public class ServerThread implements Runnable {
 
 	public void run() {
 		try {
+			this.serverSenderSocket = new DatagramSocket(serverPort);
 			byte[] messageBytes = new byte[MESSAGES_BYTES_LENGTH];
 			DatagramPacket recievedPackage;
-			this.socket = new DatagramSocket(serverPort);		
-
 			do {
 				recievedPackage = new DatagramPacket(messageBytes, messageBytes.length);
-				this.socket.receive(recievedPackage);
-				
+				this.serverSenderSocket.receive(recievedPackage);	
 				byte[] data = recievedPackage.getData();
 				ByteArrayInputStream in = new ByteArrayInputStream(data);
 				ObjectInputStream is = new ObjectInputStream(in);
-				
-
 				try {
 					Message recievedMessage = (Message) is.readObject();
 					recievedMessage.printMessageData();
-					serverInterfase.updateConsole(recievedMessage.originUser + " > Send: " + recievedMessage.message);
+					serverInterfase.updateConsole(recievedMessage.originUser.alias + " > Send: " + recievedMessage.message);
 					processMessage(recievedMessage);
+					getConnectedClientsAliasList(recievedMessage);
 				} catch (ClassNotFoundException e) {
 					e.printStackTrace();
 				}			
 			}while(true);
 		}catch(Exception e) {
 			System.err.println(e.getMessage());
-			System.exit(1);	
+			//System.exit(1);	
 		}	
 	}
 	
@@ -78,21 +74,28 @@ public class ServerThread implements Runnable {
 		}else{
 			messageWasFor = recievedFlag;
 		}
-		
 		sendResponse(recievedMessage, messageWasFor, responseMessage, responseFlag);
 	}
 		
 	void sendResponse(Message recievedMessage, String messageWasFor, String responseMessage, String responseFlag) throws IOException {
 		if(messageWasFor.equals("Server")) {
 			User originUser = new User("Server", this.serverSenderSocket.getLocalPort());
-			Message serverMessage = new Message(originUser, recievedMessage.originUser, responseMessage, responseFlag);
-			serverMessage.setIsMessageFromServer(true);
-			serverMessage.registeredClients = this.registeredClients;
-			MessageSender msgSender = new MessageSender(serverMessage);
-			msgSender.sendMessage();
+			for(User user: this.registeredClients) {
+				if(!user.alias.equals(recievedMessage.originUser.alias)) {
+					responseFlag = "UpdateRegisteredClientListCompleted";
+				}
+				Message updateMessage = new Message(originUser, user, responseMessage, responseFlag);
+				updateMessage.setIsMessageFromServer(true);
+				updateMessage.registeredClients = this.registeredClients;
+				MessageSender msgSenderUpdate = new MessageSender(updateMessage);
+				msgSenderUpdate.sendMessage();
+			}
+			
 		}else if(messageWasFor.equals("PrivateChat")) {
 			recievedMessage.setIsMessageFromServer(true);
 			recievedMessage.registeredClients = this.registeredClients;
+			System.out.println("Message to send to private chat");
+			recievedMessage.printMessageData();
 			MessageSender msgSender = new MessageSender(recievedMessage);
 			msgSender.sendMessage();
 		}else if(messageWasFor.equals("GroupChat")) {
@@ -117,5 +120,8 @@ public class ServerThread implements Runnable {
 	void registerClient(User newUser) {
 		this.registeredClients.add(newUser);
 		this.serverInterfase.updateConsole("Server > Client "+ newUser.alias +" was registerd succesfuly!");
+	}
+	void getConnectedClientsAliasList(Message m){
+		ArrayList<User> connectedUsersList = this.registeredClients;
 	}
 }

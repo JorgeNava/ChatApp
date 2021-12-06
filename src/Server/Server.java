@@ -16,7 +16,7 @@ public class Server extends JFrame {
 	JTextArea display;
 	JScrollPane scroll;
 	JTextArea textArea;
-	final static int SERVER_PORT = 8101;
+	final static int SERVER_PORT = 8010;
 	
 	public Server() {
 		super("Server");

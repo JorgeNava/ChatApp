@@ -67,12 +67,15 @@ public class PrivateChat extends JPanel {
 			Message message = new Message(originClient, recieverClient, messageContent, flag);
 			MessageSender msgSender = new MessageSender(message);
 			updateChat(message);
+			this.chatConfig.updateStoredConversation((message.originUser.alias + ": " + message.message + "\n"));
 			msgSender.sendMessage();
 			messageField.setText("");
         });
 	}
 	
 	void updateChat(Message message) {
+		System.out.println(message.originUser.alias + ": " + message.message + "\n");
+		System.out.println("PrivateChat storedconv " +this.chatConfig.storedConversation);
 		this.display.append(message.originUser.alias + ": " + message.message + "\n");
 		this.display.update(this.display.getGraphics());
 	}

@@ -10,67 +10,85 @@ import java.util.ArrayList;
 
 import javax.swing.JTextArea;
 
-public class Listener implements Runnable{
+public class Listener implements Runnable {
 	AppConfiguration appConfig = AppConfiguration.getInstance();
 	JTextArea chatTextArea;
-	final int messageBytesLength = 256;
+	final int messageBytesLength = 1024;
 	Chat chat;
-	
+
 	public Listener(Chat chat) {
 		this.chat = chat;
-	}	
-		
+	}
+
 	public void run() {
 		try {
 			byte[] incomingData = new byte[messageBytesLength];
-		
+
 			do {
-				DatagramPacket recievedPackage = new DatagramPacket(incomingData, incomingData.length);
-				byte[] data = recievedPackage.getData();
-				ByteArrayInputStream in = new ByteArrayInputStream(data);
-				ObjectInputStream is = new ObjectInputStream(in);
 				try {
-					Message message = (Message) is.readObject(); 
+					DatagramPacket recievedPackage = new DatagramPacket(incomingData, incomingData.length);
+					this.appConfig.getSocket().receive(recievedPackage);
+					byte[] data = recievedPackage.getData();
+					ByteArrayInputStream in = new ByteArrayInputStream(data);
+					ObjectInputStream is = new ObjectInputStream(in);
+
+					Message message = (Message) is.readObject();
 					this.appConfig.setRecievedMessage(message);
 					message.printMessageData();
-					if(! message.flag.equals("EndClient")) {
-						processMessage(message);					
-					}else { break; }
-				}catch (ClassNotFoundException e) {
+					if (!message.flag.equals("EndClient")) {
+						processMessage(message);
+					} else {
+						break;
+					}
+				} catch (ClassNotFoundException e) {
 					e.printStackTrace();
 				}
 			} while (true);
-		}catch (Exception e) {
+		} catch (Exception e) {
 			System.err.println(e.getMessage());
 			System.exit(1);
 		}
 	}
-	
+
 	void processMessage(Message message) throws IOException {
 		String recievedFlag = message.flag;
-		
-		if(recievedFlag.equals("RegistrationCompleted")) {
+
+		if (recievedFlag.equals("RegistrationCompleted")) {
 			setRegisteredClients(message);
-		}else if(recievedFlag.equals("UpdateRegisteredClientListCompleted")) {
-			setRegisteredClients(message);
-		}else if(recievedFlag.equals("PrivateChat")){
-		 	this.chat.lobbyView.updatePrivateChatConfigByUser(message, this.chat.privateChatView);
-			
-			if(this.appConfig.getActualView().equals(this.chat.PRIVATE_CHAT_VIEW_ID)) {
-				this.chat.privateChatView.updateChat(message);
+			if (this.appConfig.getActualView().equals(this.chat.LOBBY_VIEW_ID)) {
+				this.chat.lobbyView.updateRegisteredClientsList(message.registeredClients);
 			}
-		}else if(recievedFlag.equals("GroupChat")){
-		 	this.chat.lobbyView.updateGroupChatConfigByUser(message, this.chat.groupChatView);
-			
-			if(this.appConfig.getActualView().equals(this.chat.GROUP_CHAT_VIEW_ID)) {
+		} else if (recievedFlag.equals("UpdateRegisteredClientListCompleted")) {
+			setRegisteredClients(message);
+			if (this.appConfig.getActualView().equals(this.chat.LOBBY_VIEW_ID)) {
+				this.chat.lobbyView.updateRegisteredClientsList(message.registeredClients);
+			}
+		} else if (recievedFlag.equals("PrivateChat")) {
+			System.out.println("Updating private chat config by Listener.java");
+			//CHECK
+			this.chat.privateChatView.chatConfig = this.chat.lobbyView.updatePrivateChatConfigByUser(message, this.chat.privateChatView);
+			System.out.println("Stored conversation:" + this.chat.privateChatView.chatConfig.storedConversation);
+			System.out.println("Actual view" + this.appConfig.getActualView());
+			System.out.println("If cond: "+ this.appConfig.getActualView().equals(this.chat.PRIVATE_CHAT_VIEW_ID));
+			if(message.originUser.alias.equals(this.chat.privateChatView.chatConfig.recieverClient.alias)) {
+				if (this.appConfig.getActualView().equals(this.chat.PRIVATE_CHAT_VIEW_ID)) {
+					System.out.println("Entered");
+					this.chat.privateChatView.updateChat(message);
+				}
+			}
+		} else if (recievedFlag.equals("GroupChat")) {
+			this.chat.lobbyView.updateGroupChatConfigByUser(message, this.chat.groupChatView);
+
+			if (this.appConfig.getActualView().equals(this.chat.GROUP_CHAT_VIEW_ID)) {
 				this.chat.groupChatView.updateChat(message);
 			}
-		}else {
-			
+		} else {
+
 		}
 	}
-	
+
 	void setRegisteredClients(Message message) {
 		this.appConfig.setRegisteredClients(message.registeredClients);
+		System.out.println(this.appConfig.getRegisteredClients());
 	}
 }

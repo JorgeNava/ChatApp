@@ -39,6 +39,7 @@ public class MessageSender {
             	sendPacket = new DatagramPacket(buf, buf.length,IPAddress, msg.destinationUser.port);            	
             }else {	// FROM CLIENT TO SERVER
             	sendPacket = new DatagramPacket(buf, buf.length,IPAddress, SERVER_PORT);            	
+            	System.out.println("De cliente a servidor");
             }
             socket.send(sendPacket);
         }catch (Exception e) {

@@ -17,8 +17,10 @@ import java.util.ArrayList;
 import javax.swing.JPanel;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
+import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JTextField;
+import javax.swing.ListModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.JLabel;
@@ -39,12 +41,11 @@ public class Lobby extends JPanel {
 	boolean selectedGroupChatIsNewFlag;
 	boolean selectedPrivateChatIsNewFlag;
 	int selectedGroupChatId = -1, selectedPrivateChatId = -1;
-	String connectedClients[] = {"Erick", "Ana", "Nathali", "Samantha", "John", "Sam"};
 	
 	/*
 	 * === CLIENT NODE ===
 	 *
-	 * REQUEST TO SERVER FROM ANOTHER PART OF THE CODE connectedClients_new
+	 * REQUEST TO SERVER FROM ANOTHER PART OF THE CODE connectedClients
 	 * WATCH THAT REQUEST IS SENT CONSTANTLY (CONSIDER CREATING THIS IN A NEW THREAD)
 	 * SOME COMMENTS REGARDING THIS TOPIC HAVE BEEN ADDED TO Chat.java FILE
 	 *
@@ -58,7 +59,7 @@ public class Lobby extends JPanel {
 	 * 
 	 * */
 	
-	ArrayList<User> connectedClients_new = new ArrayList<User>();
+	ArrayList<User> connectedClients = new ArrayList<User>();
 	ArrayList<PrivateChatConfig> connectedPrivateChatConfigs = new ArrayList<PrivateChatConfig>();
 	ArrayList<GroupChatConfig> connectedGroupChatConfigs = new ArrayList<GroupChatConfig>();
 	ArrayList<User> selectedClientsForGroupChat = new ArrayList<User>();
@@ -70,7 +71,7 @@ public class Lobby extends JPanel {
 		this.setPreferredSize(new Dimension(420, 177));
 		
 		// KEEP AN EYE ON THIS .toArray() SINCE IT CAN CAUSE UNWANTED WANRINGS/ERRORS
-		clientsList = new JList(getConnectedClientsAliasList().toArray()); 
+		clientsList = new JList(getConnectedClientsAliasList(this.appConfig.getRegisteredClients())); 
 		clientsList.setVisibleRowCount(4);
 		clientsScrollPane = new JScrollPane(clientsList);
 		clientsScrollPane.setBounds(80, 40, 228, 80);
@@ -80,14 +81,15 @@ public class Lobby extends JPanel {
 		aliasLabel.setBounds(10, 11, 117, 16);
 		add(aliasLabel);
 		
-		groupChatCheckBox = new JCheckBox("Create chat");
-		groupChatCheckBox.setBounds(80, 123, 97, 23);
+		groupChatCheckBox = new JCheckBox("Create Group chat");
+		groupChatCheckBox.setBounds(80, 123, 110, 23);
 		add(groupChatCheckBox);
 		
 		clientsList.addListSelectionListener(new ListSelectionListener() {
 			@Override
 			public void valueChanged(ListSelectionEvent e) {
 				String recieverAlias = (String) clientsList.getSelectedValue();
+				System.out.println("recieverAlias String " +recieverAlias);
 				recieverUser = getUserFromConnectedClientsByUserAlias(recieverAlias);
 				
 				if(groupChatCheckBox.isSelected()) { // FOR NEW GROUP CHATS
@@ -108,6 +110,7 @@ public class Lobby extends JPanel {
 						selectedGroupChatId = (Integer.parseInt(recieverAlias.split("")[1])) - 1;
 						selectedGroupChatIsNewFlag = false;
 					}else { // FOR PRIVATE CHATS
+						System.out.println("recieverUser# "+ recieverUser.alias);
 						selectedPrivateChatId = getPrivateChatConfigIndexByUser(recieverUser);
 						if(selectedPrivateChatId == -1) {
 							selectedPrivateChatId = connectedPrivateChatConfigs.size() + 1;
@@ -121,13 +124,13 @@ public class Lobby extends JPanel {
 		});
 	}
 	
-	ArrayList<String> getConnectedClientsAliasList(){
-		ArrayList<User> connectedUsersList = this.appConfig.getRegisteredClients();
-		ArrayList<String> connectedClientsAlias =  new ArrayList<String>();
-		for (int i = 0; i < connectedUsersList.size(); i++) {
-			connectedClientsAlias.add(connectedUsersList.get(i).alias);
+	ListModel getConnectedClientsAliasList(ArrayList<User> users){
+		DefaultListModel model = new DefaultListModel();	
+		
+		for (int i = 0; i < users.size(); i++) {
+			model.addElement(users.get(i).alias);
          }
-		return connectedClientsAlias;
+		return model;
 	}
 	
 	void processRecievedMessage() {
@@ -166,8 +169,9 @@ public class Lobby extends JPanel {
 	int getPrivateChatConfigIndexByUser(User reciever) {
 		int privateChatConfigIndex;
 		boolean configWasFound = false;
+		System.out.println("##### "+ this.connectedPrivateChatConfigs.size());
 		for (privateChatConfigIndex = 0; privateChatConfigIndex < this.connectedPrivateChatConfigs.size(); privateChatConfigIndex++) {
-            if(this.connectedPrivateChatConfigs.get(privateChatConfigIndex).recieverClient == reciever) {
+            if(this.connectedPrivateChatConfigs.get(privateChatConfigIndex).recieverClient.alias.equals(reciever.alias)) {
             	configWasFound = true;
             	break;
             }
@@ -197,12 +201,18 @@ public class Lobby extends JPanel {
 	
 	User getUserFromConnectedClientsByUserAlias(String recieverAlias) {
 		int userIndexInConnectedClientsList;
-		for (userIndexInConnectedClientsList = 0; userIndexInConnectedClientsList < this.connectedClients_new.size(); userIndexInConnectedClientsList++) {
-            if(this.connectedClients_new.get(userIndexInConnectedClientsList).alias == recieverAlias) {
+		int resultIndex =  -1;
+		for (userIndexInConnectedClientsList = 0; userIndexInConnectedClientsList < this.connectedClients.size(); userIndexInConnectedClientsList++) {
+            if(this.connectedClients.get(userIndexInConnectedClientsList).alias == recieverAlias) {
+            	resultIndex = userIndexInConnectedClientsList;
             	break;
             }
          }
-		return this.connectedClients_new.get(userIndexInConnectedClientsList);
+		
+		System.out.println(userIndexInConnectedClientsList);
+		System.out.println("Size: " +this.connectedClients.size());
+		System.out.println("ResultIndex: " + resultIndex);
+		return this.connectedClients.get(userIndexInConnectedClientsList);
 	}
 	
 	PrivateChatConfig getPrivateChatConfig() {
@@ -213,6 +223,13 @@ public class Lobby extends JPanel {
 		}else {
 			selectedPrivateChatConfig = this.connectedPrivateChatConfigs.get(this.selectedPrivateChatId);
 		}
+		//this.selectedPrivateChatIsNewFlag = false;
+		System.out.println("getPrivateChatConfig");
+		System.out.println("selectedPrivateChatIsNewFlag: "+ this.selectedPrivateChatIsNewFlag);
+		System.out.println("selectedPrivateChatId: "+ this.selectedPrivateChatId);
+		System.out.println("Receiver client alias: "+ selectedPrivateChatConfig.recieverClient.alias);
+		System.out.println("OriginClient: "+ selectedPrivateChatConfig.originClient.alias);
+		System.out.println("storedConversation: "+ selectedPrivateChatConfig.storedConversation);
 		return selectedPrivateChatConfig;
 	}
 	
@@ -227,15 +244,14 @@ public class Lobby extends JPanel {
 		return selectedGroupChatConfig;
 	}
 	
-	void updatePrivateChatConfigByUser(Message message, PrivateChat privateChatView) {
+	PrivateChatConfig updatePrivateChatConfigByUser(Message message, PrivateChat privateChatView) {
 		User senderUser = message.originUser;
 		int privateChatConfigIndex = getPrivateChatConfigIndexByUser(senderUser);
 		PrivateChatConfig userPrivateChatConfig = this.connectedPrivateChatConfigs.get(privateChatConfigIndex); 
-		
 		userPrivateChatConfig.lastRecievedMessage = message;
 		userPrivateChatConfig.updateStoredConversation(senderUser.alias + ": " + message.message + "\n");
-		this.connectedPrivateChatConfigs.set(privateChatConfigIndex, userPrivateChatConfig); 
-		privateChatView.setConfig(userPrivateChatConfig);	
+		this.connectedPrivateChatConfigs.set(privateChatConfigIndex, userPrivateChatConfig); 		
+		return userPrivateChatConfig;
 	}
 	
 	void updateGroupChatConfigByUser(Message message, GroupChat groupChatView) {
@@ -250,6 +266,11 @@ public class Lobby extends JPanel {
 		groupChatView.setConfig(userGroupChatConfig);	
 	}
 	
+	public void updateRegisteredClientsList(ArrayList<User> registerClients) {
+		this.connectedClients = registerClients;
+		this.clientsList.setModel(getConnectedClientsAliasList(registerClients));
+	}
+	
 	boolean startPrivateChat() {
 		return !this.groupChatCheckBox.isSelected();
 	}
@@ -257,6 +278,8 @@ public class Lobby extends JPanel {
 	void setClientUser() {
 		aliasLabel.setText("ALIAS: " + this.appConfig.getClientUser().alias);
 	}
+	
+	void clearClientsList() {
+		this.clientsList.clearSelection();
+	}
 }
-
-
