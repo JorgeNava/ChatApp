@@ -45,11 +45,6 @@ public class Lobby extends JPanel {
 	/*
 	 * === CLIENT NODE ===
 	 *
-	 * 
-	 * ADD USER'S ALIASES AS TITLES TO PRIVATE CHATS
-	 *
-	 * ADD GROUP CHAT NAME AS TITLE TO GROUP CHAT AND ALSO TO GROUP CHAT CONFIGS
-	 *
 	 * ADD "ATTACH FILE" BUTTON AND FUNCTIONALITY TO PRIVATE AND GROUP CHAT INTERFACES
 	 *
 	 * 
@@ -77,14 +72,13 @@ public class Lobby extends JPanel {
 		add(aliasLabel);
 		
 		groupChatCheckBox = new JCheckBox("Create Group chat");
-		groupChatCheckBox.setBounds(80, 123, 110, 23);
+		groupChatCheckBox.setBounds(80, 123, 170, 23);
 		add(groupChatCheckBox);
 		
 		clientsList.addListSelectionListener(new ListSelectionListener() {
 			@Override
 			public void valueChanged(ListSelectionEvent e) {
 				String recieverAlias = (String) clientsList.getSelectedValue();
-				System.out.println("recieverAlias String " +recieverAlias);
 				recieverUser = getUserFromConnectedClientsByUserAlias(recieverAlias);
 				
 				if(groupChatCheckBox.isSelected()) { // FOR NEW GROUP CHATS
@@ -105,7 +99,6 @@ public class Lobby extends JPanel {
 						selectedGroupChatId = (Integer.parseInt(recieverAlias.split("")[1])) - 1;
 						selectedGroupChatIsNewFlag = false;
 					}else { // FOR PRIVATE CHATS
-						System.out.println("recieverUser# "+ recieverUser.alias);
 						selectedPrivateChatId = getPrivateChatConfigIndexByUser(recieverUser);
 						if(selectedPrivateChatId == -1) {
 							selectedPrivateChatId = connectedPrivateChatConfigs.size() + 1;
