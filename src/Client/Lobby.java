@@ -42,17 +42,6 @@ public class Lobby extends JPanel {
 	boolean selectedPrivateChatIsNewFlag;
 	int selectedGroupChatId = -1, selectedPrivateChatId = -1;
 	
-	/*
-	 * === CLIENT NODE ===
-	 *
-	 * ADD USER'S ALIASES AS TITLES TO PRIVATE CHATS
-	 *
-	 * ADD GROUP CHAT NAME AS TITLE TO GROUP CHAT AND ALSO TO GROUP CHAT CONFIGS
-	 *
-	 * ADD "ATTACH FILE" BUTTON AND FUNCTIONALITY TO PRIVATE AND GROUP CHAT INTERFACES
-	 * 
-	 * */
-	
 	ArrayList<User> connectedClients = new ArrayList<User>();
 	ArrayList<PrivateChatConfig> connectedPrivateChatConfigs = new ArrayList<PrivateChatConfig>();
 	ArrayList<GroupChatConfig> connectedGroupChatConfigs = new ArrayList<GroupChatConfig>();
@@ -137,19 +126,6 @@ public class Lobby extends JPanel {
 		return model;
 	}
 	
-	void processRecievedMessage() {
-		if(this.appConfig.isNewMessageRecieved()) {
-			Message recievedMessage = this.appConfig.getRecievedMessage();
-			String recievedMessageFlag = recievedMessage.flag;
-
-			if(recievedMessageFlag.equals("PrivateChat")) {
-				updatePrivateChatConfigWithNewMessage(recievedMessage);
-			}else if(recievedMessageFlag.equals("GroupChat")) {
-				updateGroupChatConfigWithNewMessage(recievedMessage);
-			}			
-		}			
-	}
-	
 	void updatePrivateChatConfigWithNewMessage(Message recievedMessage) {		
 		int destinyPrivateChatConfigIndex = getPrivateChatConfigIndexByUser(recievedMessage.originUser);
 		if(destinyPrivateChatConfigIndex != -1) {
@@ -212,16 +188,20 @@ public class Lobby extends JPanel {
             	break;
             }
          }
-		// ! MARKED ERROR HERE
 		return this.connectedClients.get(userIndexInConnectedClientsList);
 	}
 	
 	PrivateChatConfig getPrivateChatConfig() {
 		PrivateChatConfig selectedPrivateChatConfig;
+		System.out.println("=== getPrivateChatConfig ===");
+		System.out.println("* this.selectedPrivateChatIsNewFlag: " + this.selectedPrivateChatIsNewFlag);
+
 		if(this.selectedPrivateChatIsNewFlag) { 
 			selectedPrivateChatConfig = new PrivateChatConfig(this.appConfig.getClientUser(), this.recieverUser);
+			System.out.println("* connectedPrivateChatConfigs.size(): " + this.connectedPrivateChatConfigs.size());
 			this.connectedPrivateChatConfigs.add(selectedPrivateChatConfig);			
 		}else {
+			System.out.println("* this.selectedPrivateChatId: " + this.selectedPrivateChatId);
 			selectedPrivateChatConfig = this.connectedPrivateChatConfigs.get(this.selectedPrivateChatId);
 		}
 		return selectedPrivateChatConfig;
@@ -231,6 +211,7 @@ public class Lobby extends JPanel {
 		GroupChatConfig selectedGroupChatConfig;
 		System.out.println("=== getGroupChatConfig ===");
 		if(this.selectedGroupChatIsNewFlag) {
+			this.selectedClientsForGroupChat.add(this.appConfig.getClientUser());
 			selectedGroupChatConfig = new GroupChatConfig(this.selectedGroupChatId, this.appConfig.getClientUser(), this.selectedClientsForGroupChat);
 			System.out.println("* chatId: " + selectedGroupChatConfig.chatId);
 			System.out.println("* getDestinyReciversAliases: " + selectedGroupChatConfig.getDestinyReciversAliases());
@@ -297,5 +278,24 @@ public class Lobby extends JPanel {
 	
 	void clearClientsList() {
 		this.clientsList.clearSelection();
+	}
+
+	void updateConnectedGroupChatConfigs(Message message) {
+		System.out.println("=== updateConnectedGroupChatConfigs ===");
+		boolean configWasAlreadyRegistered = false;
+		for (GroupChatConfig config : this.connectedGroupChatConfigs) {
+			if(config.chatId == message.groupChatId) {
+				configWasAlreadyRegistered = true;
+				break;
+			}
+		}
+		System.out.println("* configWasAlreadyRegistered: " + configWasAlreadyRegistered);
+		if(!configWasAlreadyRegistered) {
+			int chatId = message.groupChatId;
+			GroupChatConfig selectedGroupChatConfig = new GroupChatConfig(chatId, this.appConfig.getClientUser(), message.groupChatRecievers);
+			System.out.println("* selectedGroupChatConfig.id: " + selectedGroupChatConfig.chatId);
+			System.out.println("* getDestinyReciversAliases: " + selectedGroupChatConfig.getDestinyReciversAliases());
+			this.connectedGroupChatConfigs.add(selectedGroupChatConfig);	
+		}
 	}
 }

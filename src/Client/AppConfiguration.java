@@ -17,14 +17,6 @@ public class AppConfiguration {
 	private AppConfiguration() {
 	}
 	
-	public boolean isNewMessageRecieved() {
-		boolean wasLatestRecievedMessageUpdated = false;
-		if(! this.recievedMessage.formattedMessage.equals(this.latestRecievedMessage.formattedMessage)) {
-			wasLatestRecievedMessageUpdated = true;
-		}		
-		return wasLatestRecievedMessageUpdated;
-	}
-	
 	 public static AppConfiguration getInstance(){
 		 if(instance == null)
 			 instance = new AppConfiguration();

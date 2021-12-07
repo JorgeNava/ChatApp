@@ -34,6 +34,7 @@ public class Listener implements Runnable {
 
 					Message message = (Message) is.readObject();
 					this.appConfig.setRecievedMessage(message);
+					System.out.println("=== RECIEVED MESSAGE (LISTENER.java) ===");
 					message.printMessageData();
 					if (!message.flag.equals("EndClient")) {
 						processMessage(message);
@@ -67,6 +68,11 @@ public class Listener implements Runnable {
 			}
 		} else if (recievedFlag.equals("UpdateRegisteredClientListCompleted")) {
 			setRegisteredClients(message);
+			
+			if(message.groupChatRecievers.size() > 0) {
+				this.chat.lobbyView.updateConnectedGroupChatConfigs(message);
+			}
+			
 			if (this.appConfig.getActualView().equals(this.chat.LOBBY_VIEW_ID)) {
 				this.chat.lobbyView.updateRegisteredClientsList(message.registeredClients);
 			}
@@ -88,9 +94,7 @@ public class Listener implements Runnable {
 			System.out.println("Stored conversation:" + this.chat.groupChatView.chatConfig.storedConversation);
 			System.out.println("Actual view" + this.appConfig.getActualView());
 			System.out.println("If cond: "+ this.appConfig.getActualView().equals(this.chat.GROUP_CHAT_VIEW_ID));
-			
-			
-			
+					
 			if(this.chat.groupChatView.chatConfig.getDestinyReciversAliases().contains(message.originUser.alias)) {
 				if (this.appConfig.getActualView().equals(this.chat.GROUP_CHAT_VIEW_ID)) {
 					System.out.println("Entered to GROUP CHAT");

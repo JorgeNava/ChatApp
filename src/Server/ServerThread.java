@@ -11,14 +11,19 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 
+import Client.GroupChatConfig;
 import Client.Message;
 import Client.MessageSender;
+import Client.PrivateChatConfig;
 import Client.User;
 
 public class ServerThread implements Runnable {
 	final int MESSAGES_BYTES_LENGTH = 1024;
 	Server serverInterfase;
 	int serverPort;
+	
+	ArrayList<PrivateChatConfig> connectedPrivateChatConfigs = new ArrayList<PrivateChatConfig>();
+	ArrayList<GroupChatConfig> connectedGroupChatConfigs = new ArrayList<GroupChatConfig>();
 	
 	ArrayList<User> registeredClients = new ArrayList<User>();
 	DatagramSocket serverSenderSocket;
@@ -103,6 +108,7 @@ public class ServerThread implements Runnable {
 					Message updateMessage = new Message(originUser, user, responseMessage, responseFlag);
 					updateMessage.setIsMessageFromServer(true);
 					updateMessage.registeredClients = this.registeredClients;
+					updateMessage.groupChatRecievers = recievedMessage.groupChatRecievers;
 					MessageSender msgSenderUpdate = new MessageSender(updateMessage);
 					msgSenderUpdate.sendMessage();				
 				}
