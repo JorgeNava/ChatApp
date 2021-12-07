@@ -1,11 +1,13 @@
 package Client;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.nio.file.Files;
 import java.util.ArrayList;
 
 import javax.swing.JTextArea;
@@ -15,7 +17,7 @@ public class Listener implements Runnable {
 	JTextArea chatTextArea;
 	final int messageBytesLength = 1024;
 	Chat chat;
-
+	String rootPath = "D:\\UAG\\10_Cuatrimestre\\SistemasDistribuidos\\PrimerParcial\\Proyectos\\SD Final Project\\src\\";
 	public Listener(Chat chat) {
 		this.chat = chat;
 	}
@@ -70,12 +72,15 @@ public class Listener implements Runnable {
 					this.chat.privateChatView.updateChat(message);
 				}
 			}
+			//ADD IF STATEMENT FOR FILE TRANSFER FLAG, RUN DOWNLOAD FILE HERE
+				message.downloadFile();
 		} else if (recievedFlag.equals("GroupChat")) {
 			this.chat.lobbyView.updateGroupChatConfigByUser(message, this.chat.groupChatView);
 
 			if (this.appConfig.getActualView().equals(this.chat.GROUP_CHAT_VIEW_ID)) {
 				this.chat.groupChatView.updateChat(message);
 			}
+			//ADD IF STATEMENT FOR FILE TRANSFER FLAG, RUN DOWNLOAD FILE HERE 
 		} else {
 
 		}

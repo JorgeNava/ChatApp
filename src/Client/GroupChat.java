@@ -34,12 +34,12 @@ public class GroupChat extends JPanel {
 	JTextArea display;
 	JScrollPane scroll;
 	JTextField messageField;
-	JButton sendBtn;
+	JButton sendBtn, sentFileBtn;
 	JLabel lblContactAlias;
 	
 	public GroupChat() {
 		setLayout(null);
-		this.setPreferredSize(new Dimension(420, 200));
+		this.setPreferredSize(new Dimension(440, 210));
 		
 		lblContactAlias = new JLabel();
 		lblContactAlias.setBounds(10, 0, 100, 16);
@@ -49,7 +49,7 @@ public class GroupChat extends JPanel {
 	    display.setEditable(false);
 	    scroll = new JScrollPane(display);
 	    scroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
-	    scroll.setBounds(10, 25, 400, 120);
+	    scroll.setBounds(10, 25, 428, 120);
 		add(scroll);		
 	
 		messageField = new JTextField();
@@ -58,10 +58,15 @@ public class GroupChat extends JPanel {
 		add(messageField);
 		messageField.setColumns(10);
 		
-		sendBtn = new JButton("SEND");
+		sendBtn = new JButton("SEND     ");
 		sendBtn.setHorizontalAlignment(SwingConstants.RIGHT);
-		sendBtn.setBounds(342, 155, 67, 15);
+		sendBtn.setBounds(342, 155, 95, 15);
 		add(sendBtn);
+		
+		sentFileBtn = new JButton("SEND FILE");
+		sentFileBtn.setHorizontalAlignment(SwingConstants.RIGHT);
+		sentFileBtn.setBounds(342, 175, 95, 15);
+		add(sentFileBtn);
 		
 		sendBtn.addActionListener(e -> {
 			User originUser = this.chatConfig.originClient;
