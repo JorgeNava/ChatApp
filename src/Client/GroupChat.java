@@ -18,6 +18,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JTextField;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.event.ListSelectionEvent;
@@ -36,6 +37,7 @@ public class GroupChat extends JPanel {
 	JTextField messageField;
 	JButton sendBtn, sentFileBtn;
 	JLabel lblContactAlias;
+	JFileChooser fileDialog;
 	
 	public GroupChat() {
 		setLayout(null);
@@ -68,6 +70,8 @@ public class GroupChat extends JPanel {
 		sentFileBtn.setBounds(342, 175, 95, 15);
 		add(sentFileBtn);
 		
+		fileDialog = new JFileChooser();
+		
 		sendBtn.addActionListener(e -> {
 			User originUser = this.chatConfig.originClient;
 			ArrayList<User> recieversUsers = this.chatConfig.destinyRecievers;
@@ -75,11 +79,37 @@ public class GroupChat extends JPanel {
 			String flag = "GroupChat";
 			
 			Message message = new Message(originUser, recieversUsers, messageContent, flag);
+			message.groupChatId = this.chatConfig.chatId;
 			updateChat(message);
+			this.chatConfig.updateStoredConversation(message.originUser.alias + ": " + message.message + "\n");
 			MessageSender msgSender = new MessageSender(message);
 			msgSender.sendMessage();
 			messageField.setText("");
         });
+		
+		sentFileBtn.addActionListener(e -> {
+			String filePath = "";
+			int returnVal = fileDialog.showOpenDialog(this);
+			User originClient = this.chatConfig.originClient;
+			ArrayList <User> recieverClient = this.chatConfig.destinyRecievers;
+			String messageContent = "File sent";
+			String flag = "GroupChat";
+			if (returnVal == JFileChooser.APPROVE_OPTION) {
+				filePath = fileDialog.getSelectedFile().getAbsolutePath();
+				filePath = filePath.replace("\\", "\\\\");
+				Message message = new Message(originClient, recieverClient, messageContent, flag);
+				message.setFileBytes(filePath);
+				message.printMessageData();
+				MessageSender msgSender = new MessageSender(message);
+				updateChat(message);
+				this.chatConfig.updateStoredConversation((message.originUser.alias + ": " + message.message + "\n"));
+				msgSender.sendMessage();
+				messageField.setText("");
+			} else {
+				System.out.println("File Chooser cancelled");
+			}
+		});
+		
 	}
 	
 	

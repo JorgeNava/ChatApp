@@ -82,7 +82,10 @@ public class Chat extends JFrame{
         		viewsCardLayout.show(viewsContainer, PRIVATE_CHAT_VIEW_ID); // LOBBY - PRIVATE CHAT        		
         	}else {
         		this.appConfig.setActualView(GROUP_CHAT_VIEW_ID);
+        		System.out.println("Updating group chat config by chat.java");        		
          		groupChatView.setConfig(lobbyView.getGroupChatConfig());
+        		System.out.println("GROUP CHAT ID (CHAT.java): "+groupChatView.chatConfig.chatId);
+        		System.out.println("GROUP CHAT STORED CONV (CHAT.java): "+groupChatView.chatConfig.storedConversation);
         		viewsCardLayout.show(viewsContainer, GROUP_CHAT_VIEW_ID); // LOBBY - GROUP CHAT    
         	}
         });
@@ -91,8 +94,10 @@ public class Chat extends JFrame{
         	viewsCardLayout.show(viewsContainer, LOBBY_VIEW_ID); // PRIVATE CHAT - LOBBY
         });
 		this.groupChatView_Btn.addActionListener(e -> {
-			this.lobbyView.clientsList.clearSelection();
 			this.appConfig.setActualView(LOBBY_VIEW_ID); 
+			System.out.println("=== GROUP CHAT - LOBBY (CHAT.java) ===");
+			this.appConfig.getRecievedMessage().printMessageData();
+			lobbyView.updateRegisteredClientsList(this.appConfig.getRecievedMessage().registeredClients);
         	viewsCardLayout.show(viewsContainer, LOBBY_VIEW_ID); // GROUP CHAT - LOBBY
         });
 

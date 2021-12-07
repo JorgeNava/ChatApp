@@ -11,18 +11,23 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 
+import Client.GroupChatConfig;
 import Client.Message;
 import Client.MessageSender;
+import Client.PrivateChatConfig;
 import Client.User;
 
 public class ServerThread implements Runnable {
-	final int MESSAGES_BYTES_LENGTH = 1024;
+	final int MESSAGES_BYTES_LENGTH = 1024 * 5;
 	Server serverInterfase;
 	int serverPort;
 	
+	ArrayList<PrivateChatConfig> connectedPrivateChatConfigs = new ArrayList<PrivateChatConfig>();
+	ArrayList<GroupChatConfig> connectedGroupChatConfigs = new ArrayList<GroupChatConfig>();
+	
 	ArrayList<User> registeredClients = new ArrayList<User>();
 	DatagramSocket serverSenderSocket;
-
+	boolean registerNewGroup = true;
 	
 	public ServerThread (int serverPort, Server serverInterfase) {
 		this.serverInterfase = serverInterfase;
@@ -35,13 +40,15 @@ public class ServerThread implements Runnable {
 			byte[] messageBytes = new byte[MESSAGES_BYTES_LENGTH];
 			DatagramPacket recievedPackage;
 			do {
-				recievedPackage = new DatagramPacket(messageBytes, messageBytes.length);
-				this.serverSenderSocket.receive(recievedPackage);	
-				byte[] data = recievedPackage.getData();
-				ByteArrayInputStream in = new ByteArrayInputStream(data);
-				ObjectInputStream is = new ObjectInputStream(in);
 				try {
+					recievedPackage = new DatagramPacket(messageBytes, messageBytes.length);
+					this.serverSenderSocket.receive(recievedPackage);	
+					byte[] data = recievedPackage.getData();
+					ByteArrayInputStream in = new ByteArrayInputStream(data);
+					ObjectInputStream is = new ObjectInputStream(in);
+					System.out.println("RECIEVED MESSAGE:");
 					Message recievedMessage = (Message) is.readObject();
+					System.out.println("RECIEVED MESSAGE 222222222222:");
 					recievedMessage.printMessageData();
 					serverInterfase.updateConsole(recievedMessage.originUser.alias + " > Send: " + recievedMessage.message);
 					processMessage(recievedMessage);
@@ -71,6 +78,20 @@ public class ServerThread implements Runnable {
 			messageWasFor = "Server";
 			responseMessage = "Updated registered clients list was retrieved.";
 			responseFlag = "UpdateRegisteredClientListCompleted";
+		}else if(recievedFlag.equals("RegisterGroup")) {
+			this.registerNewGroup = true;
+			for (User user : this.registeredClients) {
+				if(user.alias.equals("Group "+recievedMessage.groupChatId)) {
+					this.registerNewGroup = false;
+				}
+			}
+			
+			if(this.registerNewGroup) {
+				registerGroup(recievedMessage);
+				messageWasFor = "Server";
+				responseMessage = "Registration of group was done.";
+				responseFlag = "GroupRegistrationCompleted";				
+			}
 		}else{
 			messageWasFor = recievedFlag;
 		}
@@ -80,17 +101,20 @@ public class ServerThread implements Runnable {
 	void sendResponse(Message recievedMessage, String messageWasFor, String responseMessage, String responseFlag) throws IOException {
 		if(messageWasFor.equals("Server")) {
 			User originUser = new User("Server", this.serverSenderSocket.getLocalPort());
-			for(User user: this.registeredClients) {
-				if(!user.alias.equals(recievedMessage.originUser.alias)) {
-					responseFlag = "UpdateRegisteredClientListCompleted";
+			if(this.registerNewGroup) {
+				for(User user: this.registeredClients) {
+					if(!user.alias.equals(recievedMessage.originUser.alias)) {
+						responseFlag = "UpdateRegisteredClientListCompleted";
+					}
+					Message updateMessage = new Message(originUser, user, responseMessage, responseFlag);
+					updateMessage.setIsMessageFromServer(true);
+					updateMessage.registeredClients = this.registeredClients;
+					updateMessage.groupChatRecievers = recievedMessage.groupChatRecievers;
+					MessageSender msgSenderUpdate = new MessageSender(updateMessage);
+					msgSenderUpdate.sendMessage();				
 				}
-				Message updateMessage = new Message(originUser, user, responseMessage, responseFlag);
-				updateMessage.setIsMessageFromServer(true);
-				updateMessage.registeredClients = this.registeredClients;
-				MessageSender msgSenderUpdate = new MessageSender(updateMessage);
-				msgSenderUpdate.sendMessage();
 			}
-			
+			this.registerNewGroup = true;			
 		}else if(messageWasFor.equals("PrivateChat")) {
 			recievedMessage.setIsMessageFromServer(true);
 			recievedMessage.registeredClients = this.registeredClients;
@@ -101,11 +125,10 @@ public class ServerThread implements Runnable {
 		}else if(messageWasFor.equals("GroupChat")) {
 			recievedMessage.registeredClients = this.registeredClients;
 			recievedMessage.groupChatRecievers.forEach((groupMember) -> {
-				if(!groupMember.equals(recievedMessage.originUser)) {
+				if(!groupMember.alias.equals(recievedMessage.originUser.alias)) {
 					Message serverMessage = recievedMessage;
 					serverMessage.setIsMessageFromServer(true);
 					serverMessage.destinationUser = groupMember;
-					serverMessage.registeredClients = this.registeredClients;
 					
 					MessageSender msgSender = new MessageSender(serverMessage);				
 					msgSender.sendMessage();
@@ -121,6 +144,14 @@ public class ServerThread implements Runnable {
 		this.registeredClients.add(newUser);
 		this.serverInterfase.updateConsole("Server > Client "+ newUser.alias +" was registerd succesfuly!");
 	}
+	
+	void registerGroup(Message message) {
+		String groupName = "Group " + message.groupChatId;
+		this.registeredClients.add(new User(groupName));
+		this.serverInterfase.updateConsole("Server > Group "+ message.groupChatId +" was registerd succesfuly!");
+	}
+
+	
 	void getConnectedClientsAliasList(Message m){
 		ArrayList<User> connectedUsersList = this.registeredClients;
 	}

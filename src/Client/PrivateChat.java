@@ -97,10 +97,15 @@ public class PrivateChat extends JPanel {
 				filePath = fileDialog.getSelectedFile().getAbsolutePath();
 				filePath = filePath.replace("\\", "\\\\");
 				Message message = new Message(originClient, recieverClient, messageContent, flag);
+				System.out.println("antessssssss: " +message.isMessageFile);
 				message.setFileBytes(filePath);
+				message.printMessageData();
+				System.out.println("Despuesssssss: " +message.isMessageFile);
 				MessageSender msgSender = new MessageSender(message);
 				updateChat(message);
 				this.chatConfig.updateStoredConversation((message.originUser.alias + ": " + message.message + "\n"));
+				System.out.println("=====updateStoredConversation==========");
+				System.out.println(this.chatConfig.storedConversation);
 				msgSender.sendMessage();
 				messageField.setText("");
 			} else {
