@@ -27,4 +27,12 @@ public class GroupChatConfig {
 	public void setLastRecievedMessage(Message lastRecievedMessage) {
 		this.lastRecievedMessage = lastRecievedMessage;
 	}
+	
+	ArrayList<String> getDestinyReciversAliases() {
+		ArrayList<String> aliases = new ArrayList<String>();
+		for (User user : destinyRecievers) {
+			aliases.add(user.alias);
+		}
+		return aliases;
+	}
 }

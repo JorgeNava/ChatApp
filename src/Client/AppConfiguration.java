@@ -5,7 +5,8 @@ import java.util.ArrayList;
 
 public class AppConfiguration {
     private static AppConfiguration instance = null;
-	
+	private final int SERVER_PORT = 8010;
+
 	private ArrayList<User> registeredClients = new ArrayList<User>();
 	private Message latestRecievedMessage =  new Message();
 	private Message recievedMessage = new Message();
@@ -16,20 +17,16 @@ public class AppConfiguration {
 	private AppConfiguration() {
 	}
 	
-	public boolean isNewMessageRecieved() {
-		boolean wasLatestRecievedMessageUpdated = false;
-		if(! this.recievedMessage.formattedMessage.equals(this.latestRecievedMessage.formattedMessage)) {
-			wasLatestRecievedMessageUpdated = true;
-		}		
-		return wasLatestRecievedMessageUpdated;
-	}
-	
 	 public static AppConfiguration getInstance(){
 		 if(instance == null)
 			 instance = new AppConfiguration();
 		 return instance;
 	 }
 	
+	 public int getServerPort() {
+		 return SERVER_PORT;
+	 }
+
 	 public String getActualView() {
 		 return actualView;
 	 }
