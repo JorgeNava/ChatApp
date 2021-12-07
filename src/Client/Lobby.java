@@ -64,7 +64,7 @@ public class Lobby extends JPanel {
 		add(aliasLabel);
 		
 		groupChatCheckBox = new JCheckBox("Create Group chat");
-		groupChatCheckBox.setBounds(80, 123, 110, 23);
+		groupChatCheckBox.setBounds(80, 123, 170, 23);
 		add(groupChatCheckBox);
 		
 		clientsList.addListSelectionListener(new ListSelectionListener() {

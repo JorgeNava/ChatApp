@@ -58,8 +58,8 @@ public class Chat extends JFrame{
         
 		this.loginView_Btn.setBounds(224, 73, 97, 25);
 		this.lobbyView_Btn.setBounds(313, 141, 97, 25);
-		this.privateChatView_Btn.setBounds(342, 154, 67, 15);
-		this.groupChatView_Btn.setBounds(342, 154, 67, 15);
+		this.privateChatView_Btn.setBounds(342, 194, 95, 15);
+		this.groupChatView_Btn.setBounds(342, 194, 95, 15);
 		this.loginView.add(loginView_Btn);
 		this.lobbyView.add(lobbyView_Btn);
 		this.privateChatView.add(privateChatView_Btn);
@@ -77,7 +77,7 @@ public class Chat extends JFrame{
         });
 		this.lobbyView_Btn.addActionListener(e -> {
         	if(lobbyView.startPrivateChat() && !lobbyView.selectedChatIsGroupFlag) {
-        		this.appConfig.setActualView(PRIVATE_CHAT_VIEW_ID);
+        		this.appConfig.setActualView(PRIVATE_CHAT_VIEW_ID);        		
         		privateChatView.setConfig(lobbyView.getPrivateChatConfig());
         		viewsCardLayout.show(viewsContainer, PRIVATE_CHAT_VIEW_ID); // LOBBY - PRIVATE CHAT        		
         	}else {

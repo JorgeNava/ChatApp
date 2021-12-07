@@ -1,11 +1,13 @@
 package Client;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.nio.file.Files;
 import java.util.ArrayList;
 
 import javax.swing.JTextArea;
@@ -13,9 +15,8 @@ import javax.swing.JTextArea;
 public class Listener implements Runnable {
 	AppConfiguration appConfig = AppConfiguration.getInstance();
 	JTextArea chatTextArea;
-	final int messageBytesLength = 1024;
+	final int messageBytesLength = 1024 * 5;
 	Chat chat;
-
 	public Listener(Chat chat) {
 		this.chat = chat;
 	}
@@ -77,29 +78,28 @@ public class Listener implements Runnable {
 				this.chat.lobbyView.updateRegisteredClientsList(message.registeredClients);
 			}
 		} else if (recievedFlag.equals("PrivateChat")) {
+			System.out.println("===========PrivateMessage received=========");
 			this.chat.privateChatView.chatConfig = this.chat.lobbyView.updatePrivateChatConfigByUser(message, this.chat.privateChatView);
-			System.out.println("Stored conversation:" + this.chat.privateChatView.chatConfig.storedConversation);
-			System.out.println("Actual view" + this.appConfig.getActualView());
-			System.out.println("If cond: "+ this.appConfig.getActualView().equals(this.chat.PRIVATE_CHAT_VIEW_ID));
+			System.out.println("===========PrivateMessage received=========");
 			if(message.originUser.alias.equals(this.chat.privateChatView.chatConfig.recieverClient.alias)) {
 				if (this.appConfig.getActualView().equals(this.chat.PRIVATE_CHAT_VIEW_ID)) {
-					System.out.println("Entered");
 					this.chat.privateChatView.updateChat(message);
 				}
+			}
+			System.out.println("===========PrivateMessage received=========");
+			if (message.isMessageFile) {
+				message.downloadFile();
 			}
 		} else if (recievedFlag.equals("GroupChat")) {
 			System.out.println("Updating GROUP chat config by Listener.java");
 			this.chat.groupChatView.chatConfig = this.chat.lobbyView.updateGroupChatConfigByUser(message, this.chat.groupChatView);
-			
-			System.out.println("Stored conversation:" + this.chat.groupChatView.chatConfig.storedConversation);
-			System.out.println("Actual view" + this.appConfig.getActualView());
-			System.out.println("If cond: "+ this.appConfig.getActualView().equals(this.chat.GROUP_CHAT_VIEW_ID));
-					
 			if(this.chat.groupChatView.chatConfig.getDestinyReciversAliases().contains(message.originUser.alias)) {
 				if (this.appConfig.getActualView().equals(this.chat.GROUP_CHAT_VIEW_ID)) {
-					System.out.println("Entered to GROUP CHAT");
 					this.chat.groupChatView.updateChat(message);
 				}
+			}
+			if (message.isMessageFile) {
+				message.downloadFile();
 			}
 		} else {
 

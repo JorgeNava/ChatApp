@@ -18,7 +18,7 @@ import Client.PrivateChatConfig;
 import Client.User;
 
 public class ServerThread implements Runnable {
-	final int MESSAGES_BYTES_LENGTH = 1024;
+	final int MESSAGES_BYTES_LENGTH = 1024 * 5;
 	Server serverInterfase;
 	int serverPort;
 	
@@ -40,14 +40,15 @@ public class ServerThread implements Runnable {
 			byte[] messageBytes = new byte[MESSAGES_BYTES_LENGTH];
 			DatagramPacket recievedPackage;
 			do {
-				recievedPackage = new DatagramPacket(messageBytes, messageBytes.length);
-				this.serverSenderSocket.receive(recievedPackage);	
-				byte[] data = recievedPackage.getData();
-				ByteArrayInputStream in = new ByteArrayInputStream(data);
-				ObjectInputStream is = new ObjectInputStream(in);
 				try {
-					Message recievedMessage = (Message) is.readObject();
+					recievedPackage = new DatagramPacket(messageBytes, messageBytes.length);
+					this.serverSenderSocket.receive(recievedPackage);	
+					byte[] data = recievedPackage.getData();
+					ByteArrayInputStream in = new ByteArrayInputStream(data);
+					ObjectInputStream is = new ObjectInputStream(in);
 					System.out.println("RECIEVED MESSAGE:");
+					Message recievedMessage = (Message) is.readObject();
+					System.out.println("RECIEVED MESSAGE 222222222222:");
 					recievedMessage.printMessageData();
 					serverInterfase.updateConsole(recievedMessage.originUser.alias + " > Send: " + recievedMessage.message);
 					processMessage(recievedMessage);
